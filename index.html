@@ -1,31 +1,93 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <script src="/socket.io/socket.io.js" defer></script>
-    <script src="/video-stream-merger.js" defer></script>
-  
-  
+
+    <meta name="viewport" content="width=device-width" />
+    <title>Multi Conn App</title>
+    <link rel="stylesheet" href="/style.css">
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/jquery-3.4.1.min.js"></script>
+    <!-- <script src="scripts/jquery.signalR-2.2.2.min.js"></script> -->
+    <!-- <script src="https://localhost:44338/signalr/hubs"></script> -->
+    <script src="/wrtchelper.js"></script>
+    <script src="/app.js"></script>
+
+    <script>
+        
+        $(function () {
+            
+            const urlParams = new URLSearchParams(window.location.search);
+            
+            var meeting_id = urlParams.get('mid');
+
+            if (!meeting_id) {
+                var murl = window.location.origin + "?mid=" +  (new Date()).getTime();
+                $('#meetingid').attr('href',murl).text(murl);
+                $("#meetingContainer").hide();
+                $("#meetingbox").show();
+                return;
+            }
+
+            var user_id = urlParams.get('uid');
+            if (!user_id) {
+                user_id = window.prompt('Enter your nick!');
+            }
+
+            if (!user_id || !meeting_id) {
+                alert('user id or meeting id missing');
+                return;
+            }
+            $("#meetingContainer").show();
+            $("#meetingbox").hide();
+
+            MyApp._init(user_id,meeting_id);
+
+        });
+    </script>
 </head>
 <body>
-      <!-- <audio autoplay muted controls id="audioCtr"></audio> -->
-      <video autoplay muted controls id="videoCtr" width="480" height="320"></video>
-      <video autoplay muted controls id="remoteVideoCtr" width="480" height="320"></video>
-      <video autoplay controls id="videoCtrRec" width="480" height="320" style="display:none"></video>
-      <input type="text" id="roomName" />
-      <button id="startConnection">Start Connection</button>
-      <button id="btnMuteUnmute">Mute</button>
-      <button id="btnStartStopCam">Start Camera</button>
-      <button id="btnStartReco">Start Recording</button>
-      <button id="btnPauseReco" style="display:none">Pause</button>
-      <button id="btnResumeReco" style="display:none">Resume</button>
-      <button id="btnStopReco" style="display:none">Stop</button>
-  
-      <a href="" id="downloadRecording" style="display:none">Download</a>
-      <script src="/audio.js" defer></script>
-      <script>
-      </script>
+
+    <div id="meetingbox" style="display: none;">
+        <p>It seems you are not trying to join any meeting!
+            You may start a new meeting. Here is generated for you.  <a id='meetingid' href="#"></a>
+        </p>
+    </div>
+
+    <div id="meetingContainer" style="display: none;">
+        <h1 id='meetingname'></h1>
+        <div>
+            <div style="width:200px;height:300px;float:left;overflow-y: scroll;display:none" id="messages">
+                <div><input type="text" id="msgbox" /><button id="btnsend">Send</button></div>
+            </div>
+            <div id='divUsers' style="display:none">
+                <div id="me" class="userbox">
+                    <h2></h2>
+                    <div>
+                        <video autoplay muted id="localVideoCtr" />
+                    </div>
+                </div>
+                <div id="otherTemplate" class="userbox" style="display:none">
+                    <h2></h2>
+                    <div>
+                        <video autoplay muted id="remoteVideoCtr111"></video>
+                        <audio autoplay controls style="display:none" id="remoteAudioCtr111"></audio>
+                    </div>
+                </div>
+            </div>
+        </div>
+    
+        <div style="clear: both;"></div>
+        <div class="toolbox" style="display:none">
+            <button id="btnMuteUnmute">UnMute</button>
+            <button id="btnStartStopCam">Start Camera</button>
+            <button id="btnStartStopScreenshare">Screen Share</button>
+            <button id="btnResetMeeting">Reset Meeting</button>
+        </div>
+    </div>
+    <br>
+    <br>
+ 
+
 </body>
 </html>
