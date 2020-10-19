@@ -138,7 +138,7 @@
                         width:200,
                         height:200
                     },
-                    audio:false
+                    audio:true
                 }).then(videoStram=>{
                 if(videoStram && videoStram.getVideoTracks().length > 0){
                     _videoTrack = videoStram.getVideoTracks()[0];
