@@ -369,7 +369,7 @@
 
             console.log('create connnection');
 
-            connection = new RTCPeerConnection(null);
+            connection = new RTCPeerConnection(iceConfiguration);
             connection.onicecandidate = (event)=>{
                 console.log('on ice candidate',event.candidate);
                 if(event.candidate){
