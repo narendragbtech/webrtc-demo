@@ -5,101 +5,20 @@
     <title>Title</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
           integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
-    <style>
-        .container-box {
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            justify-content: space-evenly;
-            height: calc(100vh - 70px);
-        }
-
-        .video-box {
-            display: flex;
-            flex-direction: column;
-            width: 50%;
-            height: 50%;
-        }
-
-        .videoPlayer {
-            height: 100%;
-            width: 100%;
-            border-radius: 16px;
-        }
-
-        .intro-title {
-            font-size: 2.5rem;
-
-        }
-
-        .intro-sub-title {
-            font-size: 1rem;
-        }
-
-        #meetingLink{
-            margin-left: 8px;
-            margin-right: 8px;
-        }
-        @media (min-width: 768px) and (max-width: 1199.98px) {
-            .container-box {
-                flex-direction: column;
-                justify-content: space-evenly;
-                height: 96vh;
-            }
-
-            .video-box {
-                flex-direction: column;
-                width: 100%;
-                height: 60%;
-                align-items: center;
-                justify-content: center;
-            }
-
-            .videoPlayer {
-                height: 70vh;
-                width: 80vw;
-            }
-
-            .operation-box {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                justify-content: flex-start;
-                width: 100%;
-                height: -webkit-fill-available;
-                padding: 8px;
-            }
-
-            .intro-title {
-                font-size: 5.5rem;
-
-            }
-
-            .intro-sub-title {
-                font-size: 3rem;
-            }
-            .navbar svg {
-                width: 6rem;
-                height: 5rem;
-            }
-            a.navbar-brand{
-                font-size: 3rem;
-            }
-            .btn{
-                width: -webkit-fill-available;
-                font-size: -webkit-xxx-large;
-            }
-            #meetingLink{
-                width: -webkit-fill-available;
-                font-size: -webkit-xxx-large;
-                padding: 8px;
-                margin-top: 16px;
-                margin-bottom: 16px;
-            }
-        }
-
-
-    </style>
+          <script src="/socket.io/socket.io.js"></script>
+          <script>
+              socket = io.connect('/');
+              let meetingID='';
+              socket.emit('meeting_request');
+              socket.on('on_meeting',(meetingId)=>{
+                    meetingID=meetingId;
+                    console.log('meeting ID',meetingID);
+                    document.getElementById('primaryIntroBox').style.display = 'none';
+                    document.getElementById('secondaryIntroBox').style.display = 'block';
+                    document.getElementById('share_link').value = meetingID;
+              });
+          </script>
+   <link rel="stylesheet" href="/index.css">
 
 </head>
 <body>
@@ -128,10 +47,24 @@
         <div class="intro-box" style="display: none" id="secondaryIntroBox">
             <p class="intro-title">Meeting Room Ready</p>
             <p class="intro-sub-title text-muted">We re-engineered the service we build for business meeting.</p>
+            <p class="intro-sub-title text-muted">Share Meeting Code</p>
+            <div class="form-inline">
+                <div class="form-group mb-2 mx-2" id="shareBox">
+                    <input type="text" class="form-control-plaintext" id="share_link" />
+                </div>
+            
+            <button class="btn btn-sm btn-outline-secondary mb-2" type="button" onclick="clipToCopy()">
+                <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-clipboard-plus" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/>
+                    <path fill-rule="evenodd" d="M9.5 1h-3a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3zM8 7a.5.5 0 0 1 .5.5V9H10a.5.5 0 0 1 0 1H8.5v1.5a.5.5 0 0 1-1 0V10H6a.5.5 0 0 1 0-1h1.5V7.5A.5.5 0 0 1 8 7z"/>
+                  </svg>            
+            </button>
+            
+        </div>
             <div class="row">
                 <div class="col-sm-12">
                     <div class="form-inline">
-                        <button class="btn btn-outline-primary  ">
+                        <button class="btn btn-outline-primary" onclick="joinNewMeeting()">
                             <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-camera-video mr-1"
                                  fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                                 <path fill-rule="evenodd"
@@ -141,7 +74,7 @@
                         </button>
                         <input type="text" class="form-control" id="meetingLink" placeholder="Enter link"
                                onkeyup="joinButton(this.value)"/>
-                        <button class="btn btn-outline-secondary" style="display: none" id="btnJoinButton">
+                        <button class="btn btn-outline-primary" style="display: none" id="btnJoinButton">
                             Join
                         </button>
                     </div>
@@ -163,11 +96,20 @@
             document.getElementById('btnJoinButton').style.display = 'none';
         }
     }
+    function joinNewMeeting(){
+        let uid=(new Date()).getTime();
+        if(meetingID!=='')
+           location.replace(window.location.origin + "/meeting/?mid=" +meetingID+'&uid='+uid);
+    }
 
-    setTimeout(()=>{
-        document.getElementById('primaryIntroBox').style.display = 'none';
-        document.getElementById('secondaryIntroBox').style.display = 'block';
-    },2000);
-</script>
+
+    function clipToCopy() {
+        var copyText = document.getElementById("share_link");
+        copyText.select();
+        copyText.setSelectionRange(0, 99999)
+        document.execCommand("copy");
+        alert("Copied the text: " + copyText.value);
+    }
+    </script>
 </body>
 </html>
