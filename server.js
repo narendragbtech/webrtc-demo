@@ -7,9 +7,14 @@ app.use(express.static(__dirname+"/scripts"));
 var _userConnections =[];
 //routes
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname,"index.html"));
+    res.sendFile(path.join(__dirname,"home.html"));
 	//res.send('<h1>Node Signal Server</h1>');
-})
+});
+
+app.get('/home',(req,res)=>{
+    res.sendFile(path.join(__dirname,"index.html"));
+});
+
 var port = process.env.PORT || 3000;
 //Listen on port 3000
 server = app.listen(port)

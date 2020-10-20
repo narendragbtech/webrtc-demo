@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+          integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+    <style>
+        .container-box {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-evenly;
+            height: calc(100vh - 70px);
+        }
+
+        .video-box {
+            display: flex;
+            flex-direction: column;
+            width: 50%;
+            height: 50%;
+        }
+
+        .videoPlayer {
+            height: 100%;
+            width: 100%;
+            border-radius: 16px;
+        }
+
+        .intro-title {
+            font-size: 2.5rem;
+
+        }
+
+        .intro-sub-title {
+            font-size: 1rem;
+        }
+
+        #meetingLink{
+            margin-left: 8px;
+            margin-right: 8px;
+        }
+        @media (min-width: 768px) and (max-width: 1199.98px) {
+            .container-box {
+                flex-direction: column;
+                justify-content: space-evenly;
+                height: 96vh;
+            }
+
+            .video-box {
+                flex-direction: column;
+                width: 100%;
+                height: 60%;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .videoPlayer {
+                height: 70vh;
+                width: 80vw;
+            }
+
+            .operation-box {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: flex-start;
+                width: 100%;
+                height: -webkit-fill-available;
+                padding: 8px;
+            }
+
+            .intro-title {
+                font-size: 5.5rem;
+
+            }
+
+            .intro-sub-title {
+                font-size: 3rem;
+            }
+            .navbar svg {
+                width: 6rem;
+                height: 5rem;
+            }
+            a.navbar-brand{
+                font-size: 3rem;
+            }
+            .btn{
+                width: -webkit-fill-available;
+                font-size: -webkit-xxx-large;
+            }
+            #meetingLink{
+                width: -webkit-fill-available;
+                font-size: -webkit-xxx-large;
+                padding: 8px;
+                margin-top: 16px;
+                margin-bottom: 16px;
+            }
+        }
+
+
+    </style>
+
+</head>
+<body>
+
+
+<nav class="navbar navbar-light bg-light">
+    <a class="align-items-center d-flex flex-row font-weight-bold navbar-brand" href="#">
+        <svg width="2em" height="2em" viewBox="0 0 16 16" class="bi bi-camera-video-fill mr-3" fill="currentColor"
+             xmlns="http://www.w3.org/2000/svg" style="color: #6c63ff;">
+            <path fill-rule="evenodd"
+                  d="M0 5a2 2 0 0 1 2-2h7.5a2 2 0 0 1 1.983 1.738l3.11-1.382A1 1 0 0 1 16 4.269v7.462a1 1 0 0 1-1.406.913l-3.111-1.382A2 2 0 0 1 9.5 13H2a2 2 0 0 1-2-2V5z"/>
+        </svg>
+        Video Calling
+    </a>
+</nav>
+<div class="container-box">
+    <div class="video-box">
+        <img src="/image/background1.svg" class="videoPlayer">
+    </div>
+
+    <div class="operation-box">
+        <div class="intro-box" id="primaryIntroBox">
+            <p class="intro-title">Getting Ready..</p>
+            <p class="intro-sub-title text-muted">You'll able to join in just a moment</p>
+        </div>
+        <div class="intro-box" style="display: none" id="secondaryIntroBox">
+            <p class="intro-title">Meeting Room Ready</p>
+            <p class="intro-sub-title text-muted">We re-engineered the service we build for business meeting.</p>
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="form-inline">
+                        <button class="btn btn-outline-primary  ">
+                            <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-camera-video mr-1"
+                                 fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd"
+                                      d="M0 5a2 2 0 0 1 2-2h7.5a2 2 0 0 1 1.983 1.738l3.11-1.382A1 1 0 0 1 16 4.269v7.462a1 1 0 0 1-1.406.913l-3.111-1.382A2 2 0 0 1 9.5 13H2a2 2 0 0 1-2-2V5zm11.5 5.175l3.5 1.556V4.269l-3.5 1.556v4.35zM2 4a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h7.5a1 1 0 0 0 1-1V5a1 1 0 0 0-1-1H2z"/>
+                            </svg>
+                            New meeting
+                        </button>
+                        <input type="text" class="form-control" id="meetingLink" placeholder="Enter link"
+                               onkeyup="joinButton(this.value)"/>
+                        <button class="btn btn-outline-secondary" style="display: none" id="btnJoinButton">
+                            Join
+                        </button>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+<script>
+    // document.getElementById('localVideo').constols = false;
+
+    function joinButton(event) {
+        if (event.length > 0) {
+            document.getElementById('btnJoinButton').style.display = 'block';
+        } else {
+            document.getElementById('btnJoinButton').style.display = 'none';
+        }
+    }
+
+    setTimeout(()=>{
+        document.getElementById('primaryIntroBox').style.display = 'none';
+        document.getElementById('secondaryIntroBox').style.display = 'block';
+    },2000);
+</script>
+</body>
+</html>
