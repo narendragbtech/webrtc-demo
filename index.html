@@ -23,6 +23,7 @@
                 meetingID=meeting_id;
             }else{
                 var murl = window.location.origin + "?mid=" +  (new Date()).getTime();
+                console.log(murl);
                 $('#shareLink').append(murl);
                 $('#meetingid').attr('href',murl).text(murl);
                 $("#meetingContainer").show();
@@ -141,11 +142,11 @@
 
     <script>
          function clipToCopy() {
-            var copyText = document.getElementById("share_link").value;
-            const el = document.createElement('textarea');
-            el.value = window.location.origin + "/meeting/?mid=" + copyText;
-            el.select();
+            var copyText = document.getElementById("share_link");           
+            copyText.select();
+            copyText.setSelectionRange(0, 99999); 
             document.execCommand("copy");
+            document.body.removeChild(el);
             alert("Copied the text: " + el.value);
         }
     </script>

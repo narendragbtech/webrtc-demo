@@ -21,10 +21,10 @@
                     console.log('meeting ID',meetingID);
                     document.getElementById('primaryIntroBox').style.display = 'none';
                     document.getElementById('secondaryIntroBox').style.display = 'block';
-                    document.getElementById('share_link').value = meetingID;
+                    document.getElementById('share_link').value =window.location.origin + "?mid=" + meetingID;
               });
             }
-            
+
              
             
           </script>
@@ -114,13 +114,11 @@
 
 
     function clipToCopy() {
-        var copyText = document.getElementById("share_link").value;
-        const el = document.createElement('textarea');
-            el.value = window.location.origin + "?mid=" + copyText;
-            el.select();
-      
+        var copyText = document.getElementById("share_link");
+        copyText.select();
+        copyText.setSelectionRange(0, 99999); 
         document.execCommand("copy");
-        alert("Copied the text: " + el.value);
+        alert("Copied the text: " + copyText.value);
     }
     </script>
 </body>

@@ -8,8 +8,8 @@ var MyApp = (function () {
     user_id = uid;
     meeting_id = mid;
 
-    $("#meetingname").text(meeting_id);
-    $("#share_link").val(meeting_id);
+    $("#meetingname").text(window.location.origin + "?mid=" + meeting_id);
+    $("#share_link").val(window.location.origin + "?mid=" + meeting_id);
     $("#me p").text(user_id + "(Me)");
     document.title = user_id;
 
