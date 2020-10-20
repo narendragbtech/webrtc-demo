@@ -16,8 +16,12 @@
             const urlParams = new URLSearchParams(window.location.search);
             
             var meeting_id = urlParams.get('mid');
-
-            if (!meeting_id) {
+          
+            let meetingID='';
+            console.log(meeting_id);
+            if (meeting_id) {
+                meetingID=meeting_id;
+            }else{
                 var murl = window.location.origin + "?mid=" +  (new Date()).getTime();
                 $('#shareLink').append(murl);
                 $('#meetingid').attr('href',murl).text(murl);
@@ -137,7 +141,7 @@
 
     <script>
          function clipToCopy() {
-            var copyText = document.getElementById("share_link").vlaue;
+            var copyText = document.getElementById("share_link").value;
             const el = document.createElement('textarea');
             el.value = window.location.origin + "/meeting/?mid=" + copyText;
             el.select();
