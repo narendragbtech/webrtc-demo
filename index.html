@@ -137,9 +137,9 @@
 
     <script>
          function clipToCopy() {
-            var copyText = document.getElementById("share_link");
+            var copyText = document.getElementById("share_link").vlaue;
             const el = document.createElement('textarea');
-            el.value = window.location.origin + "?mid=" + copyText;
+            el.value = window.location.origin + "/meeting/?mid=" + copyText;
             el.select();
             document.execCommand("copy");
             alert("Copied the text: " + el.value);

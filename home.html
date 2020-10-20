@@ -8,15 +8,24 @@
           <script src="/socket.io/socket.io.js"></script>
           <script>
               socket = io.connect('/');
-              let meetingID='';
-              socket.emit('meeting_request');
-              socket.on('on_meeting',(meetingId)=>{
+                
+            const urlParams = new URLSearchParams(window.location.search);
+            let meetingID='';
+            var meeting_id = urlParams.get('mid');
+            if (meeting_id) {
+                meetingID=meeting_id;
+            }else{
+                socket.emit('meeting_request');
+                socket.on('on_meeting',(meetingId)=>{
                     meetingID=meetingId;
                     console.log('meeting ID',meetingID);
                     document.getElementById('primaryIntroBox').style.display = 'none';
                     document.getElementById('secondaryIntroBox').style.display = 'block';
                     document.getElementById('share_link').value = meetingID;
               });
+            }
+             
+            
           </script>
    <link rel="stylesheet" href="/index.css">
 
