@@ -54,9 +54,9 @@
         <div class="form-inline justify-content-center p-3">
              <p class="intro-sub-title font-weight-bold m-0">Share Meeting Code</p>
             <div class="form-group mx-2" id="shareBox">
-                <p  class="intro-sub-title text-muted m-0" id='meetingname' ></p>
+                <p  class="intro-sub-title text-muted m-0 d-none" id='meetingname' ></p>
                
-                <input type="text" class="form-control-plaintext d-none" id="share_link" />
+                <input type="text" class="form-control-plaintext" id="share_link" />
             </div>        
             <button class="btn btn-sm btn-outline-secondary" type="button" onclick="clipToCopy()">
                 <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-clipboard-plus" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
@@ -146,8 +146,7 @@
             copyText.select();
             copyText.setSelectionRange(0, 99999); 
             document.execCommand("copy");
-            document.body.removeChild(el);
-            alert("Copied the text: " + el.value);
+            alert("Copied the text: " + copyText.value);
         }
     </script>
 
