@@ -25,10 +25,11 @@
                 $("#meetingbox").hide();
                 return;
             }
-
+         
             var user_id = urlParams.get('uid');
             if (!user_id) {
-                user_id = window.prompt('Enter your nick!');
+                 user_id=(new Date()).getTime();
+               // user_id = window.prompt('Enter your nick!');
             }
 
             if (!user_id || !meeting_id) {
@@ -137,10 +138,11 @@
     <script>
          function clipToCopy() {
             var copyText = document.getElementById("share_link");
-            copyText.select();
-            copyText.setSelectionRange(0, 99999)
+            const el = document.createElement('textarea');
+            el.value = window.location.origin + "?mid=" + copyText;
+            el.select();
             document.execCommand("copy");
-            alert("Copied the text: " + copyText.value);
+            alert("Copied the text: " + el.value);
         }
     </script>
 
