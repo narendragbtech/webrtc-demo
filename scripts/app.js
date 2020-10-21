@@ -4,6 +4,7 @@ var MyApp = (function () {
   var meeting_id = "";
   var user_id = "";
   const videoGrid = document.getElementById("video-grid");
+
   function init(uid, mid) {
     user_id = uid;
     meeting_id = mid;
@@ -118,7 +119,8 @@ var MyApp = (function () {
     video.id = "v_" + connId;
 
     audio.id = "a_" + connId;
-
+    audio.autoplay = true;
+    audio.controls = true;
     audio.style.display = "none";
 
     box.appendChild(video);

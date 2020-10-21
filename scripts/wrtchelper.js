@@ -36,6 +36,7 @@ var WrtcHelper = (function () {
     _localVideoPlayer = document.getElementById("localVideoCtr");
 
     eventBinding();
+    //await startwithAudio();
   }
 
   function eventBinding() {
@@ -65,7 +66,7 @@ var WrtcHelper = (function () {
       }
       _isAudioMute = !_isAudioMute;
 
-      console.log(_audioTrack);
+      console.log("Audio Track", _audioTrack);
     });
     $("#btnStartStopCam").on("click", async function () {
       if (_videoState == VideoStates.Camera) {
@@ -203,7 +204,7 @@ var WrtcHelper = (function () {
 
       _audioTrack.enabled = false;
     } catch (e) {
-      console.log(e);
+      console.log("start audio problem", e);
       return;
     }
   }
@@ -211,7 +212,7 @@ var WrtcHelper = (function () {
   async function createConnection(connid) {
     var connection = new RTCPeerConnection(iceConfiguration);
     connection.onicecandidate = function (event) {
-      console.log("onicecandidate", event.candidate);
+      console.log("create connection -> onicecandidate", event.candidate);
       if (event.candidate) {
         _serverFn(JSON.stringify({ iceCandidate: event.candidate }), connid);
       }
@@ -323,9 +324,9 @@ var WrtcHelper = (function () {
       await peers_conns[from_connid].setRemoteDescription(
         new RTCSessionDescription(message.answer),
       );
-      console.log("connection", peers_conns[from_connid]);
+      console.log("exchange sdp connection answer ", peers_conns[from_connid]);
     } else if (message.offer) {
-      console.log("offer", message.offer);
+      console.log("exchange sdp offer", message.offer);
 
       if (!peers_conns[from_connid]) {
         await createConnection(from_connid);
@@ -338,7 +339,7 @@ var WrtcHelper = (function () {
       await peers_conns[from_connid].setLocalDescription(answer);
       _serverFn(JSON.stringify({ answer: answer }), from_connid, _my_connid);
     } else if (message.iceCandidate) {
-      console.log("iceCandidate", message.iceCandidate);
+      console.log("exchange sdp -> iceCandidate", message.iceCandidate);
       if (!peers_conns[from_connid]) {
         await createConnection(from_connid);
       }
@@ -346,7 +347,7 @@ var WrtcHelper = (function () {
       try {
         await peers_conns[from_connid].addIceCandidate(message.iceCandidate);
       } catch (e) {
-        console.log(e);
+        console.log("exchange sdp error : ", e);
       }
     }
   }
