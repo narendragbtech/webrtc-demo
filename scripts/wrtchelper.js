@@ -114,8 +114,10 @@ var WrtcHelper = (function () {
           height: 480,
         };
         if (navigator.mediaDevices.getSupportedConstraints().facingMode) {
+          console.log("->>>>>>>>both");
           videoConstrain.facingMode = front ? "user" : "environment";
         } else {
+          console.log("->>>>>front only");
           videoConstrain.facingMode = "user";
         }
 
@@ -160,13 +162,6 @@ var WrtcHelper = (function () {
         _videoCamSSTrack = vstream.getVideoTracks()[0];
 
         if (_videoCamSSTrack) {
-          let constraints = {
-            width: { min: 640, ideal: 1920 },
-            height: { min: 400, ideal: 1080 },
-            aspectRatio: { ideal: 1.77778 },
-            frameRate: { max: 30 },
-          };
-          _videoCamSSTrack.applyConstraints(constraints);
           _localVideoPlayer.srcObject = new MediaStream([_videoCamSSTrack]);
 
           AddUpdateAudioVideoSenders(_videoCamSSTrack, _rtpVideoSenders);
