@@ -2,15 +2,15 @@ var WrtcHelper = (function () {
   const iceConfiguration = {
     iceServers: [
       {
-         urls: "turn:turn.docango.com:5349",
-         username: "admin", 
-         credential: "admin@123"
-       },
-     // { urls: "stun:stun.l.google.com:19302" },
-     // { urls: "stun:stun1.l.google.com:19302" },
-     // { urls: "stun:stun2.l.google.com:19302" },
-     // { urls: "stun:stun3.l.google.com:19302" },
-     // { urls: "stun:stun4.l.google.com:19302" },
+        urls: "turn:turn.docango.com:5349",
+        username: "admin",
+        credential: "admin@123",
+      },
+      // { urls: "stun:stun.l.google.com:19302" },
+      // { urls: "stun:stun1.l.google.com:19302" },
+      // { urls: "stun:stun2.l.google.com:19302" },
+      // { urls: "stun:stun3.l.google.com:19302" },
+      // { urls: "stun:stun4.l.google.com:19302" },
     ],
   };
 
@@ -109,12 +109,18 @@ var WrtcHelper = (function () {
       var vstream = null;
 
       if (_newVideoState == VideoStates.Camera) {
+        let videoConstrain = {
+          width: 720,
+          height: 480,
+        };
+        if (navigator.mediaDevices.getSupportedConstraints().facingMode) {
+          videoConstrain.facingMode = front ? "user" : "environment";
+        } else {
+          videoConstrain.facingMode = "user";
+        }
+
         vstream = await navigator.mediaDevices.getUserMedia({
-          video: {
-            width: 720,
-            height: 480,
-            facingMode: front ? "user" : "environment",
-          },
+          video: videoConstrain,
           audio: false,
         });
       } else if (_newVideoState == VideoStates.ScreenShare) {
