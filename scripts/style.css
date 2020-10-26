@@ -37,6 +37,7 @@ video {
 }
 
 .box p {
+  display: none;
   position: relative;
   top: calc(0px - 200px);
 }
