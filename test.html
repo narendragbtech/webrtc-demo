@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>test</title>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+      integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z"
+      crossorigin="anonymous"
+    />
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/jquery-3.4.1.min.js"></script>
+    <script>
+      $(function () {
+        const urlParams = new URLSearchParams(window.location.search);
+
+        var meeting_id = urlParams.get("mid");
+
+        let meetingID = "";
+        console.log(meeting_id);
+        if (meeting_id) {
+          meetingID = meeting_id;
+        } else {
+          var murl = window.location.origin + "?mid=" + new Date().getTime();
+          console.log(murl);
+          $("#shareLink").append(murl);
+          $("#meetingid").attr("href", murl).text(murl);
+          $("#meetingContainer").show();
+          $("#meetingbox").hide();
+          return;
+        }
+
+        var user_id = urlParams.get("uid");
+        if (!user_id) {
+          user_id = new Date().getTime();
+          // user_id = window.prompt('Enter your nick!');
+        }
+
+        if (!user_id || !meeting_id) {
+          alert("user id or meeting id missing");
+          return;
+        }
+        MyApp._init(user_id, meeting_id);
+      });
+    </script>
+    <link href="/version2.css" rel="stylesheet" />
+  </head>
+  <body>
+    <div class="video-grid">
+      <div class="my-video">
+        <video
+          autoplay
+          muted
+          id="localVideoCtr"
+          poster="/image/waiting.svg"
+        ></video>
+        <!-- <img src="https://i.pinimg.com/originals/cd/71/1f/cd711fca60134229d08e3f8e6604674b.jpg">            -->
+      </div>
+      <div id="remote_users" class="remote_user_row">
+        <!-- <div class="video-group">
+                <div class="bottom-row">
+                    <div class="action_button">
+                        <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-mic-mute-fill" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                            <path fill-rule="evenodd" d="M12.734 9.613A4.995 4.995 0 0 0 13 8V7a.5.5 0 0 0-1 0v1c0 .274-.027.54-.08.799l.814.814zm-2.522 1.72A4 4 0 0 1 4 8V7a.5.5 0 0 0-1 0v1a5 5 0 0 0 4.5 4.975V15h-3a.5.5 0 0 0 0 1h7a.5.5 0 0 0 0-1h-3v-2.025a4.973 4.973 0 0 0 2.43-.923l-.718-.719zM11 7.88V3a3 3 0 0 0-5.842-.963L11 7.879zM5 6.12l4.486 4.486A3 3 0 0 1 5 8V6.121zm8.646 7.234l-12-12 .708-.708 12 12-.708.707z"/>
+                        </svg>
+                    </div>
+                    <div class="action_button">
+                        123468796548654
+                    </div>                   
+                </div>                
+                <video autoplay muted id="localVideoCtr" poster="/image/waiting.svg"></video>          
+            </div> -->
+      </div>
+    </div>
+    <div class="toolbox">
+      <button id="btnMuteUnmute" class="btn btn-lg btn-primary mx-2">
+        <svg
+          id="icon-unmute"
+          width="1em"
+          height="1em"
+          viewBox="0 0 16 16"
+          class="bi bi-mic-fill d-none"
+          fill="currentColor"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path d="M5 3a3 3 0 0 1 6 0v5a3 3 0 0 1-6 0V3z" />
+          <path
+            fill-rule="evenodd"
+            d="M3.5 6.5A.5.5 0 0 1 4 7v1a4 4 0 0 0 8 0V7a.5.5 0 0 1 1 0v1a5 5 0 0 1-4.5 4.975V15h3a.5.5 0 0 1 0 1h-7a.5.5 0 0 1 0-1h3v-2.025A5 5 0 0 1 3 8V7a.5.5 0 0 1 .5-.5z"
+          />
+        </svg>
+        <svg
+          id="icon-mute"
+          width="1em"
+          height="1em"
+          viewBox="0 0 16 16"
+          class="bi bi-mic-mute-fill"
+          fill="currentColor"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            fill-rule="evenodd"
+            d="M12.734 9.613A4.995 4.995 0 0 0 13 8V7a.5.5 0 0 0-1 0v1c0 .274-.027.54-.08.799l.814.814zm-2.522 1.72A4 4 0 0 1 4 8V7a.5.5 0 0 0-1 0v1a5 5 0 0 0 4.5 4.975V15h-3a.5.5 0 0 0 0 1h7a.5.5 0 0 0 0-1h-3v-2.025a4.973 4.973 0 0 0 2.43-.923l-.718-.719zM11 7.88V3a3 3 0 0 0-5.842-.963L11 7.879zM5 6.12l4.486 4.486A3 3 0 0 1 5 8V6.121zm8.646 7.234l-12-12 .708-.708 12 12-.708.707z"
+          />
+        </svg>
+        <!-- <span id="btnMuteUnmute_text">UnMute</span> -->
+      </button>
+      <button id="btnResetMeeting" class="btn btn-danger btn-lg mx-2">
+        <svg
+          width="1em"
+          height="1em"
+          viewBox="0 0 16 16"
+          class="bi bi-telephone-inbound-fill"
+          fill="currentColor"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            fill-rule="evenodd"
+            d="M1.885.511a1.745 1.745 0 0 1 2.61.163L6.29 2.98c.329.423.445.974.315 1.494l-.547 2.19a.678.678 0 0 0 .178.643l2.457 2.457a.678.678 0 0 0 .644.178l2.189-.547a1.745 1.745 0 0 1 1.494.315l2.306 1.794c.829.645.905 1.87.163 2.611l-1.034 1.034c-.74.74-1.846 1.065-2.877.702a18.634 18.634 0 0 1-7.01-4.42 18.634 18.634 0 0 1-4.42-7.009c-.362-1.03-.037-2.137.703-2.877L1.885.511zM15.854.146a.5.5 0 0 1 0 .708L11.707 5H14.5a.5.5 0 0 1 0 1h-4a.5.5 0 0 1-.5-.5v-4a.5.5 0 0 1 1 0v2.793L15.146.146a.5.5 0 0 1 .708 0z"
+          />
+        </svg>
+        <!-- Reset Meeting -->
+      </button>
+      <button id="btnStartStopCam" class="btn btn-lg btn-warning mx-2">
+        <svg
+          id="icon-start"
+          width="1em"
+          height="1em"
+          viewBox="0 0 16 16"
+          class="bi bi-camera-video-fill"
+          fill="currentColor"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            fill-rule="evenodd"
+            d="M0 5a2 2 0 0 1 2-2h7.5a2 2 0 0 1 1.983 1.738l3.11-1.382A1 1 0 0 1 16 4.269v7.462a1 1 0 0 1-1.406.913l-3.111-1.382A2 2 0 0 1 9.5 13H2a2 2 0 0 1-2-2V5z"
+          />
+        </svg>
+        <svg
+          id="icon-stop"
+          width="1em"
+          height="1em"
+          viewBox="0 0 16 16"
+          class="bi bi-camera-video-off-fill d-none"
+          fill="currentColor"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            fill-rule="evenodd"
+            d="M10.961 12.365a1.99 1.99 0 0 0 .522-1.103l3.11 1.382A1 1 0 0 0 16 11.731V4.269a1 1 0 0 0-1.406-.913l-3.111 1.382A2 2 0 0 0 9.5 3H4.272l6.69 9.365zm-10.114-9A2.001 2.001 0 0 0 0 5v6a2 2 0 0 0 2 2h5.728L.847 3.366zm9.746 11.925l-10-14 .814-.58 10 14-.814.58z"
+          />
+        </svg>
+        <!-- <span id="btnStartStopCam_text">Start Camera</span> -->
+      </button>
+      <button id="btnResetMeeting" class="btn btn-danger btn-lg mx-2">
+        <svg
+          width="1em"
+          height="1em"
+          viewBox="0 0 16 16"
+          class="bi bi-arrow-repeat"
+          fill="currentColor"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M11.534 7h3.932a.25.25 0 0 1 .192.41l-1.966 2.36a.25.25 0 0 1-.384 0l-1.966-2.36a.25.25 0 0 1 .192-.41zm-11 2h3.932a.25.25 0 0 0 .192-.41L2.692 6.23a.25.25 0 0 0-.384 0L.342 8.59A.25.25 0 0 0 .534 9z"
+          />
+          <path
+            fill-rule="evenodd"
+            d="M8 3c-1.552 0-2.94.707-3.857 1.818a.5.5 0 1 1-.771-.636A6.002 6.002 0 0 1 13.917 7H12.9A5.002 5.002 0 0 0 8 3zM3.1 9a5.002 5.002 0 0 0 8.757 2.182.5.5 0 1 1 .771.636A6.002 6.002 0 0 1 2.083 9H3.1z"
+          />
+        </svg>
+        <!-- Reset Meeting -->
+      </button>
+      <button id="btnStartStopScreenshare" style="display: none">
+        Screen Share
+      </button>
+    </div>
+
+    <script src="/wrtchelper.js"></script>
+    <script src="/app.js"></script>
+    <script>
+      MyApp._updateLayout();
+    </script>
+  </body>
+</html>

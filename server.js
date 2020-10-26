@@ -15,8 +15,17 @@ app.get("/", (req, res) => {
   }
 });
 
+app.get("/test", (req, res) => {
+  if (!req.secure) {
+    // res.redirect("https://" + req.headers.host + req.url);
+    res.sendFile(path.join(__dirname, "test.html"));
+  } else {
+    res.sendFile(path.join(__dirname, "test.html"));
+  }
+});
+
 app.get("/meeting", (req, res) => {
-  res.sendFile(path.join(__dirname, "index.html"));
+  res.sendFile(path.join(__dirname, "test.html"));
 });
 
 var port = process.env.PORT || 8080;
@@ -32,33 +41,65 @@ const io = require("socket.io")(server);
 io.on("connection", (socket) => {
   console.log(socket.id);
 
+  socket.on("client_Error_Report", (error) => {
+    console.log(error.block, error.message);
+  });
+
   socket.on("meeting_request", () => {
     socket.emit("on_meeting", uuidV4());
   });
 
   socket.on("userconnect", (data) => {
-    console.log("userconnect", data.dsiplayName, data.meetingid);
-
-    var other_users = _userConnections.filter(
-      (p) => p.meeting_id == data.meetingid,
+    // new user connection with display name and meeting id
+    console.log(
+      `New User ${data.displayName} is connection to meeting id ${data.meetingId}`,
     );
 
-    _userConnections.push({
-      connectionId: socket.id,
-      user_id: data.dsiplayName,
-      meeting_id: data.meetingid,
+    // find all other user in same meeting id  from all user connection array
+    var other_users = _userConnections.filter(
+      (p) => p.meeting_id == data.meetingId,
+    );
+
+    // find new user already exists in userconnection or not
+    let isUserExists = _userConnections.findIndex((existingUser) => {
+      existingUser.user_id == data.displayName &&
+        existingUser.meeting_id == data.meetingId;
     });
 
-    other_users.forEach((v) => {
-      socket.to(v.connectionId).emit("informAboutNewConnection", {
-        other_user_id: data.dsiplayName,
-        connId: socket.id,
+    // if it is not exists then push into user connection array  and broadcase new user displayName and connection id to other user in meeting.
+    if (isUserExists === -1) {
+      _userConnections.push({
+        connectionId: socket.id,
+        user_id: data.displayName,
+        meeting_id: data.meetingId,
       });
+      // join meeting
+      socket.join(data.meetingId);
+    } else {
+      console.log(
+        `${data.displayName} is already exists in ${data.meetingId} meeting...`,
+      );
+    }
+    // broadcase user details to other user with same meeting id
+    socket.to(data.meetingId).broadcast.emit("informAboutNewConnection", {
+      other_user_id: data.displayName,
+      connId: socket.id,
     });
+    //  console.log("room user count : ", io.sockets.clients(data.meetingId));
+    console.log(
+      "broadcase user to meeting id users through inform About New Connection",
+    );
 
+    // other_users.forEach((v) => {
+    //   socket.to(v.connectionId).emit("informAboutNewConnection", {
+    //     other_user_id: data.dsiplayName,
+    //     connId: socket.id,
+    //   });
+    // });
+
+    // passing other user details to just connected new user is a array to user details
     socket.emit("userconnected", other_users);
-    //return other_users;
-  }); //end of userconnect
+  });
 
   socket.on("exchangeSDP", (data) => {
     socket
@@ -75,9 +116,11 @@ io.on("connection", (socket) => {
         (p) => p.meeting_id != meetingid,
       );
 
-      list.forEach((v) => {
-        socket.to(v.connectionId).emit("reset");
-      });
+      socket.to(meetingid).emit("reset");
+
+      // list.forEach((v) => {
+      //   socket.to(v.connectionId).emit("reset");
+      // });
 
       socket.emit("reset");
     }
@@ -119,11 +162,12 @@ io.on("connection", (socket) => {
       _userConnections = _userConnections.filter(
         (p) => p.connectionId != socket.id,
       );
-      var list = _userConnections.filter((p) => p.meeting_id == meetingid);
 
-      list.forEach((v) => {
-        socket.to(v.connectionId).emit("informAboutConnectionEnd", socket.id);
-      });
+      socket.to(meetingid).emit("informAboutConnectionEnd", socket.id);
+      //  var list = _userConnections.filter((p) => p.meeting_id == meetingid);
+      // list.forEach((v) => {
+      //   socket.to(v.connectionId).emit("informAboutConnectionEnd", socket.id);
+      // });
     }
   });
 });

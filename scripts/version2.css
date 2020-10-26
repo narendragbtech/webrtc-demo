@@ -1,0 +1,126 @@
+.video-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-auto-rows: 510px;
+  grid-gap: 10px;
+  align-items: baseline;
+  justify-content: space-around;
+}
+.video-group,
+.my-video {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 300px;
+  height: 480px;
+  object-fit: cover;
+}
+.video-group video,
+.my-video video {
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  transform: rotateY(180deg);
+  -webkit-transform: rotateY(180deg); /* Safari and Chrome */
+  -moz-transform: rotateY(180deg); /* Firefox */
+}
+
+.video-group .bottom-row {
+  /* display: flex; */
+  position: relative;
+  background: #2c2c2c;
+  top: 20px;
+  width: 100%;
+  padding: 8px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  color: white;
+  z-index: 9;
+}
+
+.video-group .action_button {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.toolbox {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 18px;
+  z-index: 90;
+}
+
+.remote_user_row {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+/* Responsive layout - makes the two columns stack on top of each other instead of next to each other */
+@media screen and (max-width: 600px) {
+  .my-video {
+    display: flex;
+    flex-direction: column;
+    width: 125px;
+    height: 150px;
+    position: fixed;
+    bottom: 85px;
+    right: 0;
+    padding: 4px;
+    background: #3e3e3e;
+    z-index: 999;
+  }
+  .my-video .bottom-row {
+    display: none;
+  }
+  .video-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    grid-auto-rows: 100vh;
+    align-items: baseline;
+
+    justify-content: space-around;
+  }
+
+  .video-group {
+    width: 100%;
+    height: 100%;
+  }
+
+  .remote_user_row .video-group {
+    width: 100%;
+    height: 100%;
+    object-fit: fill;
+  }
+
+  .remote-one-to-one {
+    content: "";
+    display: flex;
+    clear: both;
+    flex-direction: column;
+    width: fit-content;
+    height: calc(100% - 20px);
+  }
+
+  .remote-one-to-many .video-group {
+    width: 50%;
+    float: left;
+  }
+
+  .remote-one-to-one .video-group {
+    width: 100%;
+  }
+  .video-group .bottom-row {
+    top: 0;
+  }
+}

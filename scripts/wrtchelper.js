@@ -28,20 +28,22 @@ var WrtcHelper = (function () {
   var _rtpAudioSenders = [];
 
   var _serverFn;
-
+  var front = true;
   var VideoStates = { None: 0, Camera: 1, ScreenShare: 2 };
-  var _videoState = VideoStates.None;
+  var _videoState = VideoStates.Camera;
   var _videoCamSSTrack;
   var _isAudioMute = true;
   var _my_connid = "";
-
-  async function _init(serFn, myconnid) {
+  var _serverErrorReport;
+  async function _init(serFn, serverErrorReport, myconnid) {
     _my_connid = myconnid;
     _serverFn = serFn;
+    _serverErrorReport = serverErrorReport;
     _localVideoPlayer = document.getElementById("localVideoCtr");
-
+    _localVideoPlayer.preload = "metadata";
+    _localVideoPlayer.volume = 0;
     eventBinding();
-    //await startwithAudio();
+    await ManageVideo(VideoStates.Camera);
   }
 
   function eventBinding() {
@@ -58,20 +60,20 @@ var WrtcHelper = (function () {
       if (_isAudioMute) {
         _audioTrack.enabled = true;
         $("#btnMuteUnmute_text").text("Mute");
-        $("#icon-unmute").addClass("d-none");
-        $("#icon-mute").removeClass("d-none");
+        $("#icon-unmute").removeClass("d-none");
+        $("#icon-mute").addClass("d-none");
         AddUpdateAudioVideoSenders(_audioTrack, _rtpAudioSenders);
       } else {
         _audioTrack.enabled = false;
         $("#btnMuteUnmute_text").text("Unmute");
-        $("#icon-unmute").removeClass("d-none");
-        $("#icon-mute").addClass("d-none");
+        $("#icon-unmute").addClass("d-none");
+        $("#icon-mute").removeClass("d-none");
 
         RemoveAudioVideoSenders(_rtpAudioSenders);
       }
       _isAudioMute = !_isAudioMute;
 
-      console.log("Audio Track", _audioTrack);
+      console.log("Audio Track available");
     });
     $("#btnStartStopCam").on("click", async function () {
       if (_videoState == VideoStates.Camera) {
@@ -111,6 +113,7 @@ var WrtcHelper = (function () {
           video: {
             width: 720,
             height: 480,
+            facingMode: front ? "user" : "environment",
           },
           audio: false,
         });
@@ -119,6 +122,7 @@ var WrtcHelper = (function () {
           video: {
             width: 720,
             height: 480,
+            facingMode: front ? "user" : "environment",
           },
           audio: false,
         });
@@ -150,6 +154,13 @@ var WrtcHelper = (function () {
         _videoCamSSTrack = vstream.getVideoTracks()[0];
 
         if (_videoCamSSTrack) {
+          let constraints = {
+            width: { min: 640, ideal: 1920 },
+            height: { min: 400, ideal: 1080 },
+            aspectRatio: { ideal: 1.77778 },
+            frameRate: { max: 30 },
+          };
+          _videoCamSSTrack.applyConstraints(constraints);
           _localVideoPlayer.srcObject = new MediaStream([_videoCamSSTrack]);
 
           AddUpdateAudioVideoSenders(_videoCamSSTrack, _rtpVideoSenders);
@@ -208,48 +219,104 @@ var WrtcHelper = (function () {
       };
 
       _audioTrack.enabled = false;
-    } catch (e) {
-      console.log("start audio problem", e);
+    } catch (err) {
+      console.log("start audio problem");
+      console.log(err.name + ": " + err.message);
       return;
     }
   }
 
   async function createConnection(connid) {
     var connection = new RTCPeerConnection(iceConfiguration);
+
     connection.onicecandidate = function (event) {
-      console.log("create connection -> onicecandidate", event.candidate);
+      console.log(
+        "Local ICE agent Send SDP Candidate Details  Through Signalling Server",
+      );
+      console.table(event.candidate);
+
       if (event.candidate) {
+        // 1st parameter is data and 2nd parameter is send to this  connection id
         _serverFn(JSON.stringify({ iceCandidate: event.candidate }), connid);
       }
     };
     connection.onicecandidateerror = function (event) {
-      console.log("onicecandidateerror", event);
+      console.log("ICE Candidate Error");
+      console.table(event);
+
+      if (event.errorCode >= 300 && event.errorCode <= 699) {
+        let errorData = {
+          block: "onicecandidateerror",
+          message: "STUN errors are in the range 300-699.",
+        };
+        _serverErrorReport(errorData);
+      } else if (event.errorCode >= 700 && event.errorCode <= 799) {
+        let errorData = {
+          block: "onicecandidateerror",
+          message:
+            "Server could not be reached; a specific error number is provided but these are not yet specified.",
+        };
+        _serverErrorReport(errorData);
+      }
     };
+
     connection.onicegatheringstatechange = function (event) {
-      console.log("onicegatheringstatechange", event);
+      let connection = event.target;
+      switch (connection.iceGatheringState) {
+        case "gathering":
+          console.log("ICE Gathering State Change To gathering state");
+          /* collection of candidates has begun */
+          break;
+        case "complete":
+          console.log("ICE Gathering State Change To Complete state");
+          /* collection of candidates is finished */
+          break;
+      }
     };
     connection.onnegotiationneeded = async function (event) {
-      console.log("onnegotiationneeded", event);
-      await _createOffer(connid);
+      console.log("Create New Offer ");
+      try {
+        await _createOffer(connid);
+      } catch (e) {
+        let errorObject = {
+          block: "on negotiation needed",
+          message: e.message,
+        };
+        _serverErrorReport(errorObject);
+        console.log("Failed To Gather compatible matches To connected peers");
+      }
     };
     connection.onconnectionstatechange = function (event) {
       console.log(
         "onconnectionstatechange",
         event.currentTarget.connectionState,
       );
-      if (event.currentTarget.connectionState === "connected") {
-        console.log("connected");
-      }
-      if (event.currentTarget.connectionState === "disconnected") {
-        console.log("disconnected");
+      let errorObject;
+      switch (event.currentTarget.connectionState) {
+        case "failed":
+          errorObject = {
+            block: "ICE Grathering State Change",
+            message:
+              "checked all candidates pairs against one another and has failed to find compatible matches for all components of the connection.",
+          };
+          _serverErrorReport(errorObject);
+          console.log("Failed To Gather compatible matches To connected peers");
+          break;
+        case "disconnected":
+          errorObject = {
+            block: "ICE Grathering State Change",
+            message:
+              "on less reliable networks,or during temporary disconnections.When the problem resolves, the connection may return to the connected state.",
+          };
+          _serverErrorReport(errorObject);
+          console.log(
+            "less reliable networks,or during temporary disconnections.connection may return to the connected state",
+          );
+          break;
       }
     };
     // New remote media stream was added
     connection.ontrack = function (event) {
-      // event.track.onunmute = () => {
-      //     alert('unmuted');
-      // };
-
       if (!_remoteVideoStreams[connid]) {
         _remoteVideoStreams[connid] = new MediaStream();
       }
@@ -262,34 +329,39 @@ var WrtcHelper = (function () {
           .getVideoTracks()
           .forEach((t) => _remoteVideoStreams[connid].removeTrack(t));
         _remoteVideoStreams[connid].addTrack(event.track);
-        //_remoteVideoStreams[connid].getTracks().forEach(t => console.log(t));
 
         var _remoteVideoPlayer = document.getElementById("v_" + connid);
+
         _remoteVideoPlayer.srcObject = null;
         _remoteVideoPlayer.srcObject = _remoteVideoStreams[connid];
         _remoteVideoPlayer.load();
-        //$(_remoteVideoPlayer).show();
-
-        // event.track.onmute = function() {
-        //     console.log(connid + ' muted');
-        //    console.log(this.muted+ ' muted');
-        //    console.log(event.track.muted+ ' muted');
-        //    console.log(this.readyState+ ' muted');
-        //    console.log('muted',this);
-        //    console.log('muted',_remoteVideoStreams[connid] );
-        //    console.log('muted',_remoteVideoPlayer.paused);
-        //    console.log('muted',_remoteVideoPlayer.readyState );
-        //    console.log('muted',_remoteVideoPlayer.ended );
-        //    if(this.muted){
-        //     //_remoteVideoPlayer.srcObject = null;
-        //    }
-        // };
       } else if (event.track.kind == "audio") {
         var _remoteAudioPlayer = document.getElementById("a_" + connid);
         _remoteAudioStreams[connid]
-          .getVideoTracks()
+          .getAudioTracks()
           .forEach((t) => _remoteAudioStreams[connid].removeTrack(t));
+
         _remoteAudioStreams[connid].addTrack(event.track);
+
+        _audioTrackRemote = _remoteAudioStreams[connid].getAudioTracks()[0];
+        _audioTrackRemote.onmute = function (e) {
+          $("#remote_audio_status_" + connid).empty();
+          $("#remote_audio_status_" + connid).append("mute");
+        };
+        _audioTrackRemote.onunmute = function (e) {
+          $("#remote_audio_status_" + connid).empty();
+          $("#remote_audio_status_" + connid).append("Unmute");
+        };
+
+        var audioContext = new AudioContext();
+        var sourceStream = audioContext.createMediaStreamSource(
+          _remoteAudioStreams[connid],
+        );
+        var gain = audioContext.createGain();
+        sourceStream.connect(gain);
+        gain.value = 0.9;
+        gain.connect(audioContext.destination);
+
         _remoteAudioPlayer.srcObject = null;
         _remoteAudioPlayer.srcObject = _remoteAudioStreams[connid];
         _remoteAudioPlayer.load();
@@ -321,7 +393,6 @@ var WrtcHelper = (function () {
     _serverFn(JSON.stringify({ offer: connection.localDescription }), connid);
   }
   async function exchangeSDP(message, from_connid) {
-    console.log("messag", message);
     message = JSON.parse(message);
 
     if (message.answer) {
@@ -389,8 +460,8 @@ var WrtcHelper = (function () {
     }
   }
   return {
-    init: async function (serverFn, my_connid) {
-      await _init(serverFn, my_connid);
+    init: async function (serverFn, serverErrorReport, my_connid) {
+      await _init(serverFn, serverErrorReport, my_connid);
     },
     ExecuteClientFn: async function (data, from_connid) {
       await exchangeSDP(data, from_connid);

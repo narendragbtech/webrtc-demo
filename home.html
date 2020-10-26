@@ -1,125 +1,182 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
     <title>Title</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
-          integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
-          <script src="/socket.io/socket.io.js"></script>
-          <script>
-              socket = io.connect('/');
-                
-            const urlParams = new URLSearchParams(window.location.search);
-            let meetingID='';
-            var meeting_id = urlParams.get('mid');
-            if (meeting_id) {
-                meetingID=meeting_id;
-            }else{
-                socket.emit('meeting_request');
-                socket.on('on_meeting',(meetingId)=>{
-                    meetingID=meetingId;
-                    console.log('meeting ID',meetingID);
-                    document.getElementById('primaryIntroBox').style.display = 'none';
-                    document.getElementById('secondaryIntroBox').style.display = 'block';
-                    document.getElementById('share_link').value =window.location.origin + "/meeting/?mid=" + meetingID;
-              });
-            }
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+      integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z"
+      crossorigin="anonymous"
+    />
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      socket = io.connect("/");
 
-             
-            
-          </script>
-   <link rel="stylesheet" href="/index.css">
-
-</head>
-<body>
-
-
-<nav class="navbar navbar-light bg-light">
-    <a class="align-items-center d-flex flex-row font-weight-bold navbar-brand" href="#">
-        <svg width="2em" height="2em" viewBox="0 0 16 16" class="bi bi-camera-video-fill mr-3" fill="currentColor"
-             xmlns="http://www.w3.org/2000/svg" style="color: #6c63ff;">
-            <path fill-rule="evenodd"
-                  d="M0 5a2 2 0 0 1 2-2h7.5a2 2 0 0 1 1.983 1.738l3.11-1.382A1 1 0 0 1 16 4.269v7.462a1 1 0 0 1-1.406.913l-3.111-1.382A2 2 0 0 1 9.5 13H2a2 2 0 0 1-2-2V5z"/>
+      const urlParams = new URLSearchParams(window.location.search);
+      let meetingID = "";
+      var meeting_id = urlParams.get("mid");
+      if (meeting_id) {
+        meetingID = meeting_id;
+      } else {
+        socket.emit("meeting_request");
+        socket.on("on_meeting", (meetingId) => {
+          meetingID = meetingId;
+          console.log("meeting ID", meetingID);
+          document.getElementById("primaryIntroBox").style.display = "none";
+          document.getElementById("secondaryIntroBox").style.display = "block";
+          document.getElementById("share_link").value =
+            window.location.origin + "?mid=" + meetingID;
+        });
+      }
+    </script>
+    <link rel="stylesheet" href="/index.css" />
+  </head>
+  <body>
+    <nav class="navbar navbar-light bg-light">
+      <a
+        class="align-items-center d-flex flex-row font-weight-bold navbar-brand"
+        href="#"
+      >
+        <svg
+          width="2em"
+          height="2em"
+          viewBox="0 0 16 16"
+          class="bi bi-camera-video-fill mr-3"
+          fill="currentColor"
+          xmlns="http://www.w3.org/2000/svg"
+          style="color: #6c63ff"
+        >
+          <path
+            fill-rule="evenodd"
+            d="M0 5a2 2 0 0 1 2-2h7.5a2 2 0 0 1 1.983 1.738l3.11-1.382A1 1 0 0 1 16 4.269v7.462a1 1 0 0 1-1.406.913l-3.111-1.382A2 2 0 0 1 9.5 13H2a2 2 0 0 1-2-2V5z"
+          />
         </svg>
         Video Calling
-    </a>
-</nav>
-<div class="container-box">
-    <div class="video-box">
-        <img src="/image/background1.svg" class="videoPlayer">
-    </div>
+      </a>
+    </nav>
+    <div class="container-box">
+      <div class="video-box">
+        <img src="/image/background1.svg" class="videoPlayer" />
+      </div>
 
-    <div class="operation-box">
+      <div class="operation-box">
         <div class="intro-box" id="primaryIntroBox">
-            <p class="intro-title">Getting Ready..</p>
-            <p class="intro-sub-title text-muted">You'll able to join in just a moment</p>
+          <p class="intro-title">Getting Ready..</p>
+          <p class="intro-sub-title text-muted">
+            You'll able to join in just a moment
+          </p>
         </div>
         <div class="intro-box" style="display: none" id="secondaryIntroBox">
-            <p class="intro-title">Meeting Room Ready</p>
-            <p class="intro-sub-title text-muted">We re-engineered the service we build for business meeting.</p>
-            <p class="intro-sub-title text-muted">Share Meeting Code</p>
-            <div class="form-inline">
-                <div class="form-group mb-2 mx-2" id="shareBox">
-                    <input type="text" class="form-control-plaintext" id="share_link" />
-                </div>
-            
-            <button class="btn btn-sm btn-outline-secondary mb-2" type="button" onclick="clipToCopy()">
-                <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-clipboard-plus" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                    <path fill-rule="evenodd" d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/>
-                    <path fill-rule="evenodd" d="M9.5 1h-3a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3zM8 7a.5.5 0 0 1 .5.5V9H10a.5.5 0 0 1 0 1H8.5v1.5a.5.5 0 0 1-1 0V10H6a.5.5 0 0 1 0-1h1.5V7.5A.5.5 0 0 1 8 7z"/>
-                  </svg>            
-            </button>
-            
-        </div>
-            <div class="row">
-                <div class="col-sm-12">
-                    <div class="form-inline">
-                        <button class="btn btn-outline-primary" onclick="joinNewMeeting()">
-                            <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-camera-video mr-1"
-                                 fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                                <path fill-rule="evenodd"
-                                      d="M0 5a2 2 0 0 1 2-2h7.5a2 2 0 0 1 1.983 1.738l3.11-1.382A1 1 0 0 1 16 4.269v7.462a1 1 0 0 1-1.406.913l-3.111-1.382A2 2 0 0 1 9.5 13H2a2 2 0 0 1-2-2V5zm11.5 5.175l3.5 1.556V4.269l-3.5 1.556v4.35zM2 4a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h7.5a1 1 0 0 0 1-1V5a1 1 0 0 0-1-1H2z"/>
-                            </svg>
-                            New meeting
-                        </button>
-                        <input type="text" class="form-control" id="meetingLink" placeholder="Enter link"
-                               onkeyup="joinButton(this.value)"/>
-                        <button class="btn btn-outline-primary" style="display: none" id="btnJoinButton">
-                            Join
-                        </button>
-                    </div>
-
-                </div>
-
+          <p class="intro-title">Meeting Room Ready</p>
+          <p class="intro-sub-title text-muted">
+            We re-engineered the service we build for business meeting.
+          </p>
+          <p class="intro-sub-title text-muted">Share Meeting Code</p>
+          <div class="form-inline">
+            <div class="form-group mb-2 mx-2" id="shareBox">
+              <input
+                type="text"
+                class="form-control-plaintext"
+                id="share_link"
+              />
             </div>
+
+            <button
+              class="btn btn-sm btn-outline-secondary mb-2"
+              type="button"
+              onclick="clipToCopy()"
+            >
+              <svg
+                width="1em"
+                height="1em"
+                viewBox="0 0 16 16"
+                class="bi bi-clipboard-plus"
+                fill="currentColor"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"
+                />
+                <path
+                  fill-rule="evenodd"
+                  d="M9.5 1h-3a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3zM8 7a.5.5 0 0 1 .5.5V9H10a.5.5 0 0 1 0 1H8.5v1.5a.5.5 0 0 1-1 0V10H6a.5.5 0 0 1 0-1h1.5V7.5A.5.5 0 0 1 8 7z"
+                />
+              </svg>
+            </button>
+          </div>
+          <div class="row">
+            <div class="col-sm-12">
+              <div class="form-inline">
+                <button
+                  class="btn btn-outline-primary"
+                  onclick="joinNewMeeting()"
+                >
+                  <svg
+                    width="1em"
+                    height="1em"
+                    viewBox="0 0 16 16"
+                    class="bi bi-camera-video mr-1"
+                    fill="currentColor"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      d="M0 5a2 2 0 0 1 2-2h7.5a2 2 0 0 1 1.983 1.738l3.11-1.382A1 1 0 0 1 16 4.269v7.462a1 1 0 0 1-1.406.913l-3.111-1.382A2 2 0 0 1 9.5 13H2a2 2 0 0 1-2-2V5zm11.5 5.175l3.5 1.556V4.269l-3.5 1.556v4.35zM2 4a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h7.5a1 1 0 0 0 1-1V5a1 1 0 0 0-1-1H2z"
+                    />
+                  </svg>
+                  New meeting
+                </button>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="meetingLink"
+                  placeholder="Enter link"
+                  onkeyup="joinButton(this.value)"
+                />
+                <button
+                  class="btn btn-outline-primary"
+                  style="display: none"
+                  id="btnJoinButton"
+                >
+                  Join
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
-
+      </div>
     </div>
-</div>
-<script>
-    // document.getElementById('localVideo').constols = false;
+    <script>
+      // document.getElementById('localVideo').constols = false;
 
-    function joinButton(event) {
+      function joinButton(event) {
         if (event.length > 0) {
-            document.getElementById('btnJoinButton').style.display = 'block';
+          document.getElementById("btnJoinButton").style.display = "block";
         } else {
-            document.getElementById('btnJoinButton').style.display = 'none';
+          document.getElementById("btnJoinButton").style.display = "none";
         }
-    }
-    function joinNewMeeting(){
-        let uid=(new Date()).getTime();
-        if(meetingID!=='')
-           location.replace(window.location.origin + "/meeting/?mid=" +meetingID+'&uid='+uid);
-    }
+      }
+      function joinNewMeeting() {
+        let uid = new Date().getTime();
+        if (meetingID !== "")
+          location.replace(
+            window.location.origin +
+              "/meeting/?mid=" +
+              meetingID +
+              "&uid=" +
+              uid,
+          );
+      }
 
-
-    function clipToCopy() {
+      function clipToCopy() {
         var copyText = document.getElementById("share_link");
         copyText.select();
-        copyText.setSelectionRange(0, 99999); 
+        copyText.setSelectionRange(0, 99999);
         document.execCommand("copy");
         alert("Copied the text: " + copyText.value);
-    }
+      }
     </script>
-</body>
+  </body>
 </html>
