@@ -93,7 +93,7 @@ var WrtcHelper = (function () {
       }
     });
 
-    $("#btnFillCamera").on("click", function () {
+    $("#btnFillCamera").on("click", async function () {
       front = !front;
       await ManageVideo(VideoStates.Camera);
     });
@@ -168,7 +168,6 @@ var WrtcHelper = (function () {
         _videoCamSSTrack = vstream.getVideoTracks()[0];
         vstream.getAudioTracks()[0].stop();
         if (_videoCamSSTrack) {
-
           _localVideoPlayer.srcObject = new MediaStream([_videoCamSSTrack]);
 
           AddUpdateAudioVideoSenders(_videoCamSSTrack, _rtpVideoSenders);
