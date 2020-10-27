@@ -92,6 +92,11 @@ var WrtcHelper = (function () {
         await ManageVideo(VideoStates.ScreenShare);
       }
     });
+
+    $("#btnFillCamera").on("click", function () {
+      front = !front;
+      await ManageVideo(VideoStates.Camera);
+    });
   }
   //Camera or Screen Share or None
   async function ManageVideo(_newVideoState) {
@@ -161,8 +166,9 @@ var WrtcHelper = (function () {
 
       if (vstream && vstream.getVideoTracks().length > 0) {
         _videoCamSSTrack = vstream.getVideoTracks()[0];
-
+        vstream.getAudioTracks()[0].stop();
         if (_videoCamSSTrack) {
+
           _localVideoPlayer.srcObject = new MediaStream([_videoCamSSTrack]);
 
           AddUpdateAudioVideoSenders(_videoCamSSTrack, _rtpVideoSenders);
@@ -213,13 +219,6 @@ var WrtcHelper = (function () {
       });
       _audioTrack = astream.getAudioTracks()[0];
 
-      var audioCtx = new AudioContext();
-      var source = audioCtx.createMediaStreamSource(astream);
-      var biquadFilter = audioCtx.createBiquadFilter();
-      biquadFilter.type = "lowshelf";
-      biquadFilter.frequency.value = 1000;
-      source.connect(biquadFilter);
-      biquadFilter.connect(audioCtx.destination);
       _audioTrack.onmute = function (e) {
         console.log(e);
       };

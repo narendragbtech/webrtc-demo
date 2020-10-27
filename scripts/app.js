@@ -3,7 +3,7 @@ var MyApp = (function () {
   var socker_url = "/";
   var meeting_id = "";
   var user_id = "";
-
+  var _other_users = [];
   const videoGrid = document.getElementById("remote_users");
 
   function init(uid, mid) {
@@ -85,13 +85,15 @@ var MyApp = (function () {
       $("#divUsers .other").remove();
       if (other_users) {
         for (var i = 0; i < other_users.length; i++) {
-          AddNewUser(other_users[i].user_id, other_users[i].connectionId);
-          WrtcHelper.createNewConnection(other_users[i].connectionId);
+          let isUserExists = _other_users.findIndex((existingUser) => {
+            existingUser.connectionId == other_users[i].connectionId;
+          });
+          if (isUserExists === -1) {
+            AddNewUser(other_users[i].user_id, other_users[i].connectionId);
+            WrtcHelper.createNewConnection(other_users[i].connectionId);
+          }
         }
       }
-      $(".toolbox").show();
-      $("#messages").show();
-      $("#divUsers").show();
     });
   }
 
@@ -105,8 +107,6 @@ var MyApp = (function () {
       socket.emit("sendMessage", $("#msgbox").val());
       $("#msgbox").val("");
     });
-
-    $("#btnFillCamera").on("click", function () {});
 
     $("#divUsers").on("dblclick", "video", function () {
       this.requestFullscreen();
