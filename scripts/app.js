@@ -3,6 +3,7 @@ var MyApp = (function () {
   var socker_url = "/";
   var meeting_id = "";
   var user_id = "";
+
   const videoGrid = document.getElementById("remote_users");
 
   function init(uid, mid) {
@@ -105,6 +106,8 @@ var MyApp = (function () {
       $("#msgbox").val("");
     });
 
+    $("#btnFillCamera").on("click", function () {});
+
     $("#divUsers").on("dblclick", "video", function () {
       this.requestFullscreen();
     });
@@ -138,6 +141,7 @@ var MyApp = (function () {
     audio.id = "a_" + connId;
     audio.autoplay = true;
     audio.controls = true;
+    audio.volume = 0.9;
     audio.style.display = "none";
 
     bottom_row_div.appendChild(action_button_audio_status);

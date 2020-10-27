@@ -6,11 +6,11 @@ var WrtcHelper = (function () {
         username: "admin",
         credential: "admin@123",
       },
-      // { urls: "stun:stun.l.google.com:19302" },
-      // { urls: "stun:stun1.l.google.com:19302" },
-      // { urls: "stun:stun2.l.google.com:19302" },
-      // { urls: "stun:stun3.l.google.com:19302" },
-      // { urls: "stun:stun4.l.google.com:19302" },
+      { urls: "stun:stun.l.google.com:19302" },
+      { urls: "stun:stun1.l.google.com:19302" },
+      { urls: "stun:stun2.l.google.com:19302" },
+      { urls: "stun:stun3.l.google.com:19302" },
+      { urls: "stun:stun4.l.google.com:19302" },
     ],
   };
 
@@ -40,7 +40,7 @@ var WrtcHelper = (function () {
     _serverFn = serFn;
     _serverErrorReport = serverErrorReport;
     _localVideoPlayer = document.getElementById("localVideoCtr");
-    _localVideoPlayer.preload = "metadata";
+    _localVideoPlayer.muted = true;
     _localVideoPlayer.volume = 0;
     eventBinding();
     await ManageVideo(VideoStates.Camera);
@@ -212,6 +212,13 @@ var WrtcHelper = (function () {
       });
       _audioTrack = astream.getAudioTracks()[0];
 
+      var audioCtx = new AudioContext();
+      var source = audioCtx.createMediaStreamSource(stream);
+      var biquadFilter = audioCtx.createBiquadFilter();
+      biquadFilter.type = "lowshelf";
+      biquadFilter.frequency.value = 1000;
+      source.connect(biquadFilter);
+      biquadFilter.connect(audioCtx.destination);
       _audioTrack.onmute = function (e) {
         console.log(e);
       };
@@ -353,15 +360,13 @@ var WrtcHelper = (function () {
           $("#remote_audio_status_" + connid).empty();
           $("#remote_audio_status_" + connid).append("Unmute");
         };
-
-        var audioContext = new AudioContext();
-        var sourceStream = audioContext.createMediaStreamSource(
-          _remoteAudioStreams[connid],
-        );
-        var gain = audioContext.createGain();
-        sourceStream.connect(gain);
-        gain.value = 0.9;
-        gain.connect(audioContext.destination);
+        var audioCtx = new AudioContext();
+        var source = audioCtx.createMediaStreamSource(stream);
+        var biquadFilter = audioCtx.createBiquadFilter();
+        biquadFilter.type = "lowshelf";
+        biquadFilter.frequency.value = 1000;
+        source.connect(biquadFilter);
+        biquadFilter.connect(audioCtx.destination);
 
         _remoteAudioPlayer.srcObject = null;
         _remoteAudioPlayer.srcObject = _remoteAudioStreams[connid];
