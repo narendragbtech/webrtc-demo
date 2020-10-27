@@ -365,7 +365,7 @@ var WrtcHelper = (function () {
           _remoteAudioStreams[connid],
         );
         var biquadFilter = audioCtx.createBiquadFilter();
-        biquadFilter.type = "lowshelf";
+        biquadFilter.type = "highshelf";
         biquadFilter.frequency.value = 1000;
         source.connect(biquadFilter);
         biquadFilter.connect(audioCtx.destination);
