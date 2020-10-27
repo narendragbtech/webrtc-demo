@@ -89,6 +89,7 @@ var MyApp = (function () {
             existingUser.connectionId == other_users[i].connectionId;
           });
           if (isUserExists === -1) {
+            _other_users.push(other_users[i].connectionId);
             AddNewUser(other_users[i].user_id, other_users[i].connectionId);
             WrtcHelper.createNewConnection(other_users[i].connectionId);
           }
