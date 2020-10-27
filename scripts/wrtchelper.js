@@ -214,7 +214,7 @@ var WrtcHelper = (function () {
       _audioTrack = astream.getAudioTracks()[0];
 
       var audioCtx = new AudioContext();
-      var source = audioCtx.createMediaStreamSource(stream);
+      var source = audioCtx.createMediaStreamSource(astream);
       var biquadFilter = audioCtx.createBiquadFilter();
       biquadFilter.type = "lowshelf";
       biquadFilter.frequency.value = 1000;
@@ -361,8 +361,11 @@ var WrtcHelper = (function () {
           $("#remote_audio_status_" + connid).empty();
           $("#remote_audio_status_" + connid).append("Unmute");
         };
+
         var audioCtx = new AudioContext();
-        var source = audioCtx.createMediaStreamSource(stream);
+        var source = audioCtx.createMediaStreamSource(
+          _remoteAudioStreams[connid],
+        );
         var biquadFilter = audioCtx.createBiquadFilter();
         biquadFilter.type = "lowshelf";
         biquadFilter.frequency.value = 1000;
