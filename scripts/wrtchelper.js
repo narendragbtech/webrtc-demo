@@ -364,11 +364,11 @@ var WrtcHelper = (function () {
         var source = audioCtx.createMediaStreamSource(
           _remoteAudioStreams[connid],
         );
-        var biquadFilter = audioCtx.createBiquadFilter();
-        biquadFilter.type = "highshelf";
-        biquadFilter.frequency.value = 1000;
-        source.connect(biquadFilter);
-        biquadFilter.connect(audioCtx.destination);
+        // var biquadFilter = audioCtx.createBiquadFilter();
+        // biquadFilter.type = "highshelf";
+        // biquadFilter.frequency.value = 300;
+        // source.connect(biquadFilter);
+        // biquadFilter.connect(audioCtx.destination);
 
         _remoteAudioPlayer.srcObject = null;
         _remoteAudioPlayer.srcObject = _remoteAudioStreams[connid];
