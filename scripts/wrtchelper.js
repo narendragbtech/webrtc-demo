@@ -214,7 +214,10 @@ var WrtcHelper = (function () {
     try {
       var astream = await navigator.mediaDevices.getUserMedia({
         video: false,
-        audio: true,
+        audio: {
+          sampleSize: 8,
+          echoCancellation: true,
+        },
       });
       _audioTrack = astream.getAudioTracks()[0];
 
@@ -360,10 +363,10 @@ var WrtcHelper = (function () {
           $("#remote_audio_status_" + connid).append("Unmute");
         };
 
-        var audioCtx = new AudioContext();
-        var source = audioCtx.createMediaStreamSource(
-          _remoteAudioStreams[connid],
-        );
+        // var audioCtx = new AudioContext();
+        // var source = audioCtx.createMediaStreamSource(
+        //   _remoteAudioStreams[connid],
+        // );
         // var biquadFilter = audioCtx.createBiquadFilter();
         // biquadFilter.type = "highshelf";
         // biquadFilter.frequency.value = 300;
