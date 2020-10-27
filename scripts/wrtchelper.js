@@ -166,7 +166,7 @@ var WrtcHelper = (function () {
 
       if (vstream && vstream.getVideoTracks().length > 0) {
         _videoCamSSTrack = vstream.getVideoTracks()[0];
-        vstream.getAudioTracks()[0].stop();
+
         if (_videoCamSSTrack) {
           _localVideoPlayer.srcObject = new MediaStream([_videoCamSSTrack]);
 
