@@ -31,12 +31,7 @@
           $("#meetingbox").hide();
           return;
         }
-
-        var user_id = urlParams.get("uid");
-        if (!user_id) {
-          user_id = new Date().getTime();
-          // user_id = window.prompt('Enter your nick!');
-        }
+        user_id = new Date().getTime();
 
         if (!user_id || !meeting_id) {
           alert("user id or meeting id missing");
