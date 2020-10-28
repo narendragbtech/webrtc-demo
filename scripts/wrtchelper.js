@@ -2,7 +2,7 @@ var WrtcHelper = (function () {
   const iceConfiguration = {
     iceServers: [
       {
-        urls: "turn:turn.docango.com:3478",
+        urls: "turn:turn.docango.com:5349",
         username: "admin",
         credential: "admin@123",
       },
