@@ -85,14 +85,8 @@ var MyApp = (function () {
       $("#divUsers .other").remove();
       if (other_users) {
         for (var i = 0; i < other_users.length; i++) {
-          let isUserExists = _other_users.findIndex((existingUser) => {
-            existingUser.connectionId == other_users[i].connectionId;
-          });
-          if (isUserExists === -1) {
-            _other_users.push(other_users[i].connectionId);
-            AddNewUser(other_users[i].user_id, other_users[i].connectionId);
-            WrtcHelper.createNewConnection(other_users[i].connectionId);
-          }
+          AddNewUser(other_users[i].user_id, other_users[i].connectionId);
+          WrtcHelper.createNewConnection(other_users[i].connectionId);
         }
       }
     });
@@ -115,44 +109,47 @@ var MyApp = (function () {
   }
 
   function AddNewUser(other_user_id, connId) {
-    let video_group_div = document.createElement("div");
-    video_group_div.className = "video-group";
-    video_group_div.id = "id" + connId;
-    let bottom_row_div = document.createElement("div");
-    bottom_row_div.className = "bottom-row";
+    let existVideoGroup = document.getElementById("id" + connId);
+    if (!existVideoGroup) {
+      let video_group_div = document.createElement("div");
+      video_group_div.className = "video-group";
+      video_group_div.id = "id" + connId;
+      let bottom_row_div = document.createElement("div");
+      bottom_row_div.className = "bottom-row";
 
-    let action_button_audio_status = document.createElement("div");
-    action_button_audio_status.className = "action-button";
-    action_button_audio_status.id = "remote_audio_status_" + connId;
+      let action_button_audio_status = document.createElement("div");
+      action_button_audio_status.className = "action-button";
+      action_button_audio_status.id = "remote_audio_status_" + connId;
 
-    let action_button_div_id = document.createElement("div");
-    action_button_div_id.id = "remote_user_name_" + connId;
-    action_button_div_id.className = "action-button";
-    action_button_div_id.innerText = other_user_id;
+      let action_button_div_id = document.createElement("div");
+      action_button_div_id.id = "remote_user_name_" + connId;
+      action_button_div_id.className = "action-button";
+      action_button_div_id.innerText = other_user_id;
 
-    let video = document.createElement("video");
-    video.poster = "/image/waiting.svg";
-    video.volume = 0;
-    video.muted = true;
-    video.autoplay = true;
-    video.controls = false;
-    video.id = "v_" + connId;
+      let video = document.createElement("video");
+      video.poster = "/image/waiting.svg";
+      video.volume = 0;
+      video.muted = true;
+      video.autoplay = true;
+      video.controls = false;
+      video.id = "v_" + connId;
 
-    let audio = document.createElement("audio");
-    audio.id = "a_" + connId;
-    audio.autoplay = true;
-    audio.controls = true;
-    audio.volume = 0.9;
-    audio.style.display = "none";
+      let audio = document.createElement("audio");
+      audio.id = "a_" + connId;
+      audio.autoplay = true;
+      audio.controls = true;
+      audio.volume = 0.9;
+      audio.style.display = "none";
 
-    bottom_row_div.appendChild(action_button_audio_status);
-    bottom_row_div.appendChild(action_button_div_id);
-    video_group_div.appendChild(bottom_row_div);
-    video_group_div.appendChild(video);
-    video_group_div.appendChild(audio);
+      bottom_row_div.appendChild(action_button_audio_status);
+      bottom_row_div.appendChild(action_button_div_id);
+      video_group_div.appendChild(bottom_row_div);
+      video_group_div.appendChild(video);
+      video_group_div.appendChild(audio);
 
-    videoGrid.appendChild(video_group_div);
-    updateLayout();
+      videoGrid.appendChild(video_group_div);
+      updateLayout();
+    }
     // var $newDiv = $("#otherTemplate").clone();
     // $newDiv = $newDiv.attr("id", connId).addClass("other");
     // $newDiv.find("h2").text(other_user_id);
