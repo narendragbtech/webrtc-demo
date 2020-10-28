@@ -2,11 +2,11 @@ var WrtcHelper = (function () {
   const iceConfiguration = {
     iceServers: [
       {
-        urls: "turn:turn.docango.com:5349",
+        urls: "turn:turn.docango.com:3478",
         username: "admin",
         credential: "admin@123",
       },
-      { urls: "stun:stun.docango.com:5349" },
+      { urls: "stun:stun.docango.com:3478" },
       { urls: "stun:stun.l.google.com:19302" },
       { urls: "stun:stun1.l.google.com:19302" },
       { urls: "stun:stun2.l.google.com:19302" },
