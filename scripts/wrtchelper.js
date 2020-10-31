@@ -49,34 +49,30 @@ var WrtcHelper = (function () {
 
   function eventBinding() {
     $("#btnMuteUnmute").on("click", async function () {
-      // if (!_audioTrack) {
-      //   await startwithAudio();
-      // }
-
-      // if (!_audioTrack) {
-      //   alert("problem with audio permission");
-      //   return;
-      // }
-
-      if (vstream && vstream.getAudioTracks().length > 0) {
-        if (_isAudioMute) {
-          // _audioTrack.enabled = true;
-          vstream.getAudioTracks().enabled = true;
-          $("#btnMuteUnmute_text").text("Mute");
-          $("#icon-unmute").removeClass("d-none");
-          $("#icon-mute").addClass("d-none");
-          //  AddUpdateAudioVideoSenders(_audioTrack, _rtpAudioSenders);
-        } else {
-          // _audioTrack.enabled = false;
-          vstream.getAudioTracks().enabled = false;
-          $("#btnMuteUnmute_text").text("Unmute");
-          $("#icon-unmute").addClass("d-none");
-          $("#icon-mute").removeClass("d-none");
-
-          // RemoveAudioVideoSenders(_rtpAudioSenders);
-        }
-        _isAudioMute = !_isAudioMute;
+      if (!_audioTrack) {
+        await startwithAudio();
       }
+
+      if (!_audioTrack) {
+        alert("problem with audio permission");
+        return;
+      }
+
+      if (_isAudioMute) {
+        _audioTrack.enabled = true;
+        $("#btnMuteUnmute_text").text("Mute");
+        $("#icon-unmute").removeClass("d-none");
+        $("#icon-mute").addClass("d-none");
+        //  AddUpdateAudioVideoSenders(_audioTrack, _rtpAudioSenders);
+      } else {
+        _audioTrack.enabled = false;
+        $("#btnMuteUnmute_text").text("Unmute");
+        $("#icon-unmute").addClass("d-none");
+        $("#icon-mute").removeClass("d-none");
+
+        // RemoveAudioVideoSenders(_rtpAudioSenders);
+      }
+      _isAudioMute = !_isAudioMute;
 
       console.log("Audio Track available");
     });
@@ -130,7 +126,7 @@ var WrtcHelper = (function () {
         };
         if (navigator.mediaDevices.getSupportedConstraints().facingMode) {
           console.log("->>>>>>>>both");
-          videoConstrain.facingMode = front ? "user" : "environment";
+          videoConstrain.facingMode = front ? "user" : "application";
         } else {
           console.log("->>>>>front only");
           videoConstrain.facingMode = "user";
@@ -258,10 +254,10 @@ var WrtcHelper = (function () {
     var connection = new RTCPeerConnection(iceConfiguration);
 
     connection.onicecandidate = function (event) {
-      if (event.candidate == null) return;
       console.log(
         "Local ICE agent Send SDP Candidate Details  Through Signalling Server",
       );
+
       if (event.candidate) {
         // 1st parameter is data and 2nd parameter is send to this  connection id
         _serverFn(JSON.stringify({ iceCandidate: event.candidate }), connid);
@@ -269,6 +265,7 @@ var WrtcHelper = (function () {
     };
     connection.onicecandidateerror = function (event) {
       console.log("ICE Candidate Error");
+      console.table(event);
 
       if (event.errorCode >= 300 && event.errorCode <= 699) {
         let errorData = {
@@ -300,8 +297,6 @@ var WrtcHelper = (function () {
       }
     };
     connection.onnegotiationneeded = async function (event) {
-      if (peers_conns[connid].signalingState === "stable") return;
-
       console.log("Create New Offer ");
       try {
         await _createOffer(connid);
@@ -343,22 +338,14 @@ var WrtcHelper = (function () {
           break;
       }
     };
-
-    // connection.onaddstream = function (event) {
-    //   var _remoteVideoPlayer = document.getElementById("v_" + connid);
-    //   _remoteVideoPlayer.srcObject = null;
-    //   _remoteVideoPlayer.srcObject = event.stream;
-    //   _remoteVideoPlayer.load();
-    // };
-
     // New remote media stream was added
     connection.ontrack = function (event) {
       if (!_remoteVideoStreams[connid]) {
         _remoteVideoStreams[connid] = new MediaStream();
       }
 
-      // if (!_remoteAudioStreams[connid])
-      //   _remoteAudioStreams[connid] = new MediaStream();
+      if (!_remoteAudioStreams[connid])
+        _remoteAudioStreams[connid] = new MediaStream();
 
       if (event.track.kind == "video") {
         _remoteVideoStreams[connid]
@@ -373,13 +360,13 @@ var WrtcHelper = (function () {
         _remoteVideoPlayer.load();
       } else if (event.track.kind == "audio") {
         var _remoteAudioPlayer = document.getElementById("a_" + connid);
-        _remoteVideoStreams[connid]
+        _remoteAudioStreams[connid]
           .getAudioTracks()
-          .forEach((t) => _remoteVideoStreams[connid].removeTrack(t));
+          .forEach((t) => _remoteAudioStreams[connid].removeTrack(t));
 
-        _remoteVideoStreams[connid].addTrack(event.track);
+        _remoteAudioStreams[connid].addTrack(event.track);
 
-        _audioTrackRemote = _remoteVideoStreams[connid].getAudioTracks()[0];
+        _audioTrackRemote = _remoteAudioStreams[connid].getAudioTracks()[0];
         _audioTrackRemote.onmute = function (e) {
           $("#remote_audio_status_" + connid).empty();
           $("#remote_audio_status_" + connid).append("mute");
@@ -390,7 +377,7 @@ var WrtcHelper = (function () {
         };
 
         _remoteAudioPlayer.srcObject = null;
-        _remoteAudioPlayer.srcObject = _remoteVideoStreams[connid];
+        _remoteAudioPlayer.srcObject = _remoteAudioStreams[connid];
         _remoteAudioPlayer.load();
       }
     };
