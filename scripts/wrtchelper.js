@@ -300,6 +300,8 @@ var WrtcHelper = (function () {
       }
     };
     connection.onnegotiationneeded = async function (event) {
+      if (connection.signalingState === "stable") return;
+
       console.log("Create New Offer ");
       try {
         await _createOffer(connid);
