@@ -49,30 +49,34 @@ var WrtcHelper = (function () {
 
   function eventBinding() {
     $("#btnMuteUnmute").on("click", async function () {
-      if (!_audioTrack) {
-        await startwithAudio();
-      }
+      // if (!_audioTrack) {
+      //   await startwithAudio();
+      // }
 
-      if (!_audioTrack) {
-        alert("problem with audio permission");
-        return;
-      }
+      // if (!_audioTrack) {
+      //   alert("problem with audio permission");
+      //   return;
+      // }
 
-      if (_isAudioMute) {
-        _audioTrack.enabled = true;
-        $("#btnMuteUnmute_text").text("Mute");
-        $("#icon-unmute").removeClass("d-none");
-        $("#icon-mute").addClass("d-none");
-        AddUpdateAudioVideoSenders(_audioTrack, _rtpAudioSenders);
-      } else {
-        _audioTrack.enabled = false;
-        $("#btnMuteUnmute_text").text("Unmute");
-        $("#icon-unmute").addClass("d-none");
-        $("#icon-mute").removeClass("d-none");
+      if (vstream && vstream.getAudioTracks().length > 0) {
+        if (_isAudioMute) {
+          // _audioTrack.enabled = true;
+          vstream.getAudioTracks().enabled = true;
+          $("#btnMuteUnmute_text").text("Mute");
+          $("#icon-unmute").removeClass("d-none");
+          $("#icon-mute").addClass("d-none");
+          //  AddUpdateAudioVideoSenders(_audioTrack, _rtpAudioSenders);
+        } else {
+          // _audioTrack.enabled = false;
+          vstream.getAudioTracks().enabled = false;
+          $("#btnMuteUnmute_text").text("Unmute");
+          $("#icon-unmute").addClass("d-none");
+          $("#icon-mute").removeClass("d-none");
 
-        RemoveAudioVideoSenders(_rtpAudioSenders);
+          // RemoveAudioVideoSenders(_rtpAudioSenders);
+        }
+        _isAudioMute = !_isAudioMute;
       }
-      _isAudioMute = !_isAudioMute;
 
       console.log("Audio Track available");
     });
@@ -116,8 +120,13 @@ var WrtcHelper = (function () {
 
       if (_newVideoState == VideoStates.Camera) {
         let videoConstrain = {
-          width: 720,
-          height: 480,
+          width: {
+            min: 480,
+            ideal: 720,
+            max: 1280,
+          },
+          frameRate: 24,
+          aspectRatio: 1.33333,
         };
         if (navigator.mediaDevices.getSupportedConstraints().facingMode) {
           console.log("->>>>>>>>both");
@@ -129,7 +138,16 @@ var WrtcHelper = (function () {
 
         vstream = await navigator.mediaDevices.getUserMedia({
           video: videoConstrain,
-          audio: false,
+          audio: {
+            mandatory: {
+              echoCancellation: false, // disabling audio processing
+              googAutoGainControl: true,
+              googNoiseSuppression: true,
+              googHighpassFilter: true,
+              googTypingNoiseDetection: true,
+              //googAudioMirroring: true
+            },
+          },
         });
       } else if (_newVideoState == VideoStates.ScreenShare) {
         vstream = await navigator.mediaDevices.getDisplayMedia({
@@ -362,16 +380,6 @@ var WrtcHelper = (function () {
           $("#remote_audio_status_" + connid).empty();
           $("#remote_audio_status_" + connid).append("Unmute");
         };
-
-        // var audioCtx = new AudioContext();
-        // var source = audioCtx.createMediaStreamSource(
-        //   _remoteAudioStreams[connid],
-        // );
-        // var biquadFilter = audioCtx.createBiquadFilter();
-        // biquadFilter.type = "highshelf";
-        // biquadFilter.frequency.value = 300;
-        // source.connect(biquadFilter);
-        // biquadFilter.connect(audioCtx.destination);
 
         _remoteAudioPlayer.srcObject = null;
         _remoteAudioPlayer.srcObject = _remoteAudioStreams[connid];
