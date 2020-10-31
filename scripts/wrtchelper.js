@@ -221,12 +221,12 @@ var WrtcHelper = (function () {
         video: false,
         audio: {
           mandatory: {
-            echoCancellation: false, // disabling audio processing
+            echoCancellation: true, // disabling audio processing
             googAutoGainControl: true,
             googNoiseSuppression: true,
             googHighpassFilter: true,
             googTypingNoiseDetection: true,
-            //googAudioMirroring: true
+            googAudioMirroring: true,
           },
         },
       });
