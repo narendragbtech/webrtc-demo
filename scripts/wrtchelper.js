@@ -258,11 +258,11 @@ var WrtcHelper = (function () {
     var connection = new RTCPeerConnection(iceConfiguration);
 
     connection.onicecandidate = function (event) {
+      if (event.candidate == null) return;
+
       console.log(
         "Local ICE agent Send SDP Candidate Details  Through Signalling Server",
       );
-      console.table(event.candidate);
-
       if (event.candidate) {
         // 1st parameter is data and 2nd parameter is send to this  connection id
         _serverFn(JSON.stringify({ iceCandidate: event.candidate }), connid);
@@ -270,7 +270,6 @@ var WrtcHelper = (function () {
     };
     connection.onicecandidateerror = function (event) {
       console.log("ICE Candidate Error");
-      console.table(event);
 
       if (event.errorCode >= 300 && event.errorCode <= 699) {
         let errorData = {
@@ -307,7 +306,7 @@ var WrtcHelper = (function () {
         await _createOffer(connid);
       } catch (e) {
         let errorObject = {
-          block: "on negotiation needed",
+          block: "on create offer",
           message: e.message,
         };
         _serverErrorReport(errorObject);
@@ -343,49 +342,57 @@ var WrtcHelper = (function () {
           break;
       }
     };
-    // New remote media stream was added
-    connection.ontrack = function (event) {
-      if (!_remoteVideoStreams[connid]) {
-        _remoteVideoStreams[connid] = new MediaStream();
-      }
 
-      if (!_remoteAudioStreams[connid])
-        _remoteAudioStreams[connid] = new MediaStream();
-
-      if (event.track.kind == "video") {
-        _remoteVideoStreams[connid]
-          .getVideoTracks()
-          .forEach((t) => _remoteVideoStreams[connid].removeTrack(t));
-        _remoteVideoStreams[connid].addTrack(event.track);
-
-        var _remoteVideoPlayer = document.getElementById("v_" + connid);
-
-        _remoteVideoPlayer.srcObject = null;
-        _remoteVideoPlayer.srcObject = _remoteVideoStreams[connid];
-        _remoteVideoPlayer.load();
-      } else if (event.track.kind == "audio") {
-        var _remoteAudioPlayer = document.getElementById("a_" + connid);
-        _remoteAudioStreams[connid]
-          .getAudioTracks()
-          .forEach((t) => _remoteAudioStreams[connid].removeTrack(t));
-
-        _remoteAudioStreams[connid].addTrack(event.track);
-
-        _audioTrackRemote = _remoteAudioStreams[connid].getAudioTracks()[0];
-        _audioTrackRemote.onmute = function (e) {
-          $("#remote_audio_status_" + connid).empty();
-          $("#remote_audio_status_" + connid).append("mute");
-        };
-        _audioTrackRemote.onunmute = function (e) {
-          $("#remote_audio_status_" + connid).empty();
-          $("#remote_audio_status_" + connid).append("Unmute");
-        };
-
-        _remoteAudioPlayer.srcObject = null;
-        _remoteAudioPlayer.srcObject = _remoteAudioStreams[connid];
-        _remoteAudioPlayer.load();
-      }
+    connection.onaddstream = function (event) {
+      var _remoteVideoPlayer = document.getElementById("v_" + connid);
+      _remoteVideoPlayer.srcObject = null;
+      _remoteVideoPlayer.srcObject = event.stream;
+      _remoteVideoPlayer.load();
     };
+
+    // New remote media stream was added
+    // connection.ontrack = function (event) {
+    //   if (!_remoteVideoStreams[connid]) {
+    //     _remoteVideoStreams[connid] = new MediaStream();
+    //   }
+
+    //   // if (!_remoteAudioStreams[connid])
+    //   //   _remoteAudioStreams[connid] = new MediaStream();
+
+    //   if (event.track.kind == "video") {
+    //     _remoteVideoStreams[connid]
+    //       .getVideoTracks()
+    //       .forEach((t) => _remoteVideoStreams[connid].removeTrack(t));
+    //     _remoteVideoStreams[connid].addTrack(event.track);
+
+    //     var _remoteVideoPlayer = document.getElementById("v_" + connid);
+
+    //     _remoteVideoPlayer.srcObject = null;
+    //     _remoteVideoPlayer.srcObject = _remoteVideoStreams[connid];
+    //     _remoteVideoPlayer.load();
+    //   } else if (event.track.kind == "audio") {
+    //     var _remoteAudioPlayer = document.getElementById("a_" + connid);
+    //     _remoteVideoStreams[connid]
+    //       .getAudioTracks()
+    //       .forEach((t) => _remoteVideoStreams[connid].removeTrack(t));
+
+    //     _remoteVideoStreams[connid].addTrack(event.track);
+
+    //     _audioTrackRemote = _remoteVideoStreams[connid].getAudioTracks()[0];
+    //     _audioTrackRemote.onmute = function (e) {
+    //       $("#remote_audio_status_" + connid).empty();
+    //       $("#remote_audio_status_" + connid).append("mute");
+    //     };
+    //     _audioTrackRemote.onunmute = function (e) {
+    //       $("#remote_audio_status_" + connid).empty();
+    //       $("#remote_audio_status_" + connid).append("Unmute");
+    //     };
+
+    //     _remoteAudioPlayer.srcObject = null;
+    //     _remoteAudioPlayer.srcObject = _remoteVideoStreams[connid];
+    //     _remoteAudioPlayer.load();
+    //   }
+    // };
 
     peers_con_ids[connid] = connid;
     peers_conns[connid] = connection;
