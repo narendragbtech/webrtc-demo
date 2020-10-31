@@ -63,14 +63,14 @@ var WrtcHelper = (function () {
         $("#btnMuteUnmute_text").text("Mute");
         $("#icon-unmute").removeClass("d-none");
         $("#icon-mute").addClass("d-none");
-        //  AddUpdateAudioVideoSenders(_audioTrack, _rtpAudioSenders);
+        AddUpdateAudioVideoSenders(_audioTrack, _rtpAudioSenders);
       } else {
         _audioTrack.enabled = false;
         $("#btnMuteUnmute_text").text("Unmute");
         $("#icon-unmute").addClass("d-none");
         $("#icon-mute").removeClass("d-none");
 
-        // RemoveAudioVideoSenders(_rtpAudioSenders);
+        RemoveAudioVideoSenders(_rtpAudioSenders);
       }
       _isAudioMute = !_isAudioMute;
 
@@ -134,16 +134,7 @@ var WrtcHelper = (function () {
 
         vstream = await navigator.mediaDevices.getUserMedia({
           video: videoConstrain,
-          audio: {
-            mandatory: {
-              echoCancellation: false, // disabling audio processing
-              googAutoGainControl: true,
-              googNoiseSuppression: true,
-              googHighpassFilter: true,
-              googTypingNoiseDetection: true,
-              //googAudioMirroring: true
-            },
-          },
+          audio: false,
         });
       } else if (_newVideoState == VideoStates.ScreenShare) {
         vstream = await navigator.mediaDevices.getDisplayMedia({
@@ -229,8 +220,14 @@ var WrtcHelper = (function () {
       var astream = await navigator.mediaDevices.getUserMedia({
         video: false,
         audio: {
-          sampleSize: 8,
-          echoCancellation: true,
+          mandatory: {
+            echoCancellation: false, // disabling audio processing
+            googAutoGainControl: true,
+            googNoiseSuppression: true,
+            googHighpassFilter: true,
+            googTypingNoiseDetection: true,
+            //googAudioMirroring: true
+          },
         },
       });
       _audioTrack = astream.getAudioTracks()[0];
@@ -402,6 +399,7 @@ var WrtcHelper = (function () {
     var connection = peers_conns[connid];
     console.log("connection.signalingState:" + connection.signalingState);
     var offer = await connection.createOffer();
+    if (pc.signalingState != "stable") return;
     await connection.setLocalDescription(offer);
     //Send offer to Server
     _serverFn(JSON.stringify({ offer: connection.localDescription }), connid);
