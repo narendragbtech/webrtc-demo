@@ -300,7 +300,7 @@ var WrtcHelper = (function () {
       }
     };
     connection.onnegotiationneeded = async function (event) {
-      if (connection.signalingState === "stable") return;
+      if (peers_conns[connid].signalingState === "stable") return;
 
       console.log("Create New Offer ");
       try {
