@@ -124,13 +124,13 @@ var WrtcHelper = (function () {
           frameRate: 24,
           aspectRatio: 1.33333,
         };
-        if (navigator.mediaDevices.getSupportedConstraints().facingMode) {
-          console.log("->>>>>>>>both");
-          videoConstrain.facingMode = front ? "user" : "application";
-        } else {
-          console.log("->>>>>front only");
-          videoConstrain.facingMode = "user";
-        }
+        // if (navigator.mediaDevices.getSupportedConstraints().facingMode) {
+        //   console.log("->>>>>>>>both");
+        //   videoConstrain.facingMode = front ? "user" : "application";
+        // } else {
+        //   console.log("->>>>>front only");
+        //   videoConstrain.facingMode = "user";
+        // }
 
         vstream = await navigator.mediaDevices.getUserMedia({
           video: videoConstrain,
@@ -221,12 +221,12 @@ var WrtcHelper = (function () {
         video: false,
         audio: {
           mandatory: {
-            echoCancellation: true, // disabling audio processing
+            echoCancellation: false, // disabling audio processing
             googAutoGainControl: true,
             googNoiseSuppression: true,
             googHighpassFilter: true,
             googTypingNoiseDetection: true,
-            googAudioMirroring: true,
+            // googAudioMirroring: true,
           },
         },
       });
