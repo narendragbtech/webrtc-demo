@@ -399,7 +399,7 @@ var WrtcHelper = (function () {
     var connection = peers_conns[connid];
     console.log("connection.signalingState:" + connection.signalingState);
     var offer = await connection.createOffer();
-    if (pc.signalingState != "stable") return;
+    if (connection.signalingState != "stable") return;
     await connection.setLocalDescription(offer);
     //Send offer to Server
     _serverFn(JSON.stringify({ offer: connection.localDescription }), connid);
