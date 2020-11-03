@@ -61,25 +61,26 @@ io.on("connection", (socket) => {
     );
 
     // find new user already exists in userconnection or not
-    let isUserExists = _userConnections.findIndex((existingUser) => {
-      existingUser.user_id == data.displayName &&
-        existingUser.meeting_id == data.meetingId;
-    });
+    // let isUserExists = _userConnections.findIndex((existingUser) => {
+    //   existingUser.user_id == data.displayName &&
+    //     existingUser.meeting_id == data.meetingId;
+    // });
 
     // if it is not exists then push into user connection array  and broadcase new user displayName and connection id to other user in meeting.
-    if (isUserExists === -1) {
-      _userConnections.push({
-        connectionId: socket.id,
-        user_id: data.displayName,
-        meeting_id: data.meetingId,
-      });
-      // join meeting
-      socket.join(data.meetingId);
-    } else {
-      console.log(
-        `${data.displayName} is already exists in ${data.meetingId} meeting...`,
-      );
-    }
+    // if (isUserExists === -1) {
+    //   _userConnections.push({
+    //     connectionId: socket.id,
+    //     user_id: data.displayName,
+    //     meeting_id: data.meetingId,
+    //   });
+    //   // join meeting
+    //   socket.join(data.meetingId);
+    // } else {
+    //   console.log(
+    //     `${data.displayName} is already exists in ${data.meetingId} meeting...`,
+    //   );
+    // }
+
     // broadcase user details to other user with same meeting id
     socket.to(data.meetingId).broadcast.emit("informAboutNewConnection", {
       other_user_id: data.displayName,
@@ -90,12 +91,12 @@ io.on("connection", (socket) => {
       "broadcase user to meeting id users through inform About New Connection",
     );
 
-    // other_users.forEach((v) => {
-    //   socket.to(v.connectionId).emit("informAboutNewConnection", {
-    //     other_user_id: data.dsiplayName,
-    //     connId: socket.id,
-    //   });
-    // });
+    other_users.forEach((v) => {
+      socket.to(v.connectionId).emit("informAboutNewConnection", {
+        other_user_id: data.dsiplayName,
+        connId: socket.id,
+      });
+    });
 
     // passing other user details to just connected new user is a array to user details
     socket.emit("userconnected", other_users);
@@ -116,11 +117,11 @@ io.on("connection", (socket) => {
         (p) => p.meeting_id != meetingid,
       );
 
-      socket.to(meetingid).emit("reset");
+      // socket.to(meetingid).emit("reset");
 
-      // list.forEach((v) => {
-      //   socket.to(v.connectionId).emit("reset");
-      // });
+      list.forEach((v) => {
+        socket.to(v.connectionId).emit("reset");
+      });
 
       socket.emit("reset");
     }
@@ -163,11 +164,11 @@ io.on("connection", (socket) => {
         (p) => p.connectionId != socket.id,
       );
 
-      socket.to(meetingid).emit("informAboutConnectionEnd", socket.id);
-      //  var list = _userConnections.filter((p) => p.meeting_id == meetingid);
-      // list.forEach((v) => {
-      //   socket.to(v.connectionId).emit("informAboutConnectionEnd", socket.id);
-      // });
+      // socket.to(meetingid).emit("informAboutConnectionEnd", socket.id);
+      var list = _userConnections.filter((p) => p.meeting_id == meetingid);
+      list.forEach((v) => {
+        socket.to(v.connectionId).emit("informAboutConnectionEnd", socket.id);
+      });
     }
   });
 });
