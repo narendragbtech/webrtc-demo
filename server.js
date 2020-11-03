@@ -61,31 +61,31 @@ io.on("connection", (socket) => {
     );
 
     // find new user already exists in userconnection or not
-    // let isUserExists = _userConnections.findIndex((existingUser) => {
-    //   existingUser.user_id == data.displayName &&
-    //     existingUser.meeting_id == data.meetingId;
-    // });
+    let isUserExists = _userConnections.findIndex((existingUser) => {
+      existingUser.user_id == data.displayName &&
+        existingUser.meeting_id == data.meetingId;
+    });
 
     // if it is not exists then push into user connection array  and broadcase new user displayName and connection id to other user in meeting.
-    // if (isUserExists === -1) {
-    //   _userConnections.push({
-    //     connectionId: socket.id,
-    //     user_id: data.displayName,
-    //     meeting_id: data.meetingId,
-    //   });
-    //   // join meeting
-    //   socket.join(data.meetingId);
-    // } else {
-    //   console.log(
-    //     `${data.displayName} is already exists in ${data.meetingId} meeting...`,
-    //   );
-    // }
+    if (isUserExists === -1) {
+      _userConnections.push({
+        connectionId: socket.id,
+        user_id: data.displayName,
+        meeting_id: data.meetingId,
+      });
+      // join meeting
+      socket.join(data.meetingId);
+    } else {
+      console.log(
+        `${data.displayName} is already exists in ${data.meetingId} meeting...`,
+      );
+    }
 
     // broadcase user details to other user with same meeting id
-    socket.to(data.meetingId).broadcast.emit("informAboutNewConnection", {
-      other_user_id: data.displayName,
-      connId: socket.id,
-    });
+    // socket.to(data.meetingId).broadcast.emit("informAboutNewConnection", {
+    //   other_user_id: data.displayName,
+    //   connId: socket.id,
+    // });
     //  console.log("room user count : ", io.sockets.clients(data.meetingId));
     console.log(
       "broadcase user to meeting id users through inform About New Connection",
